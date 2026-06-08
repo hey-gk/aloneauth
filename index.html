@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+var VERSION='1.0.0';
+var SITE={name:"Alone Auth",tag:"Auth",tagline:"Authentication for everyone.",desc:"Google Sheets powered authentication. Your Sheet ID is your database. No backend, no server. C++, C#, Python — pick your language."};
+var API='https://script.google.com/macros/s/AKfycbwI6YRias6pDMJ97-oR10GmrADBa3t8OhsG-UtY6Ea5r3J1RnL2g766-JquNRvwytLq9g/exec';
+var DONATE={binance:'705433405',ltc:'ltc1q2d5rkx0q6g3w0yfzxf5x5k5z5z5z5z5z5z5z5',btc:'bc1q2d5rkx0q6g3w0yfzxf5x5k5z5z5z5z5z5z5z5',discord:'hey_gk'};
+function g(n,v){var e=document.getElementById(n);if(e)e.textContent=v}
+function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('dLtc',DONATE.ltc);g('dBtc',DONATE.btc);g('dDiscord',DONATE.discord);g('fDiscord',DONATE.discord);g('fSiteName',SITE.name);g('fVersion',VERSION)}
+</script>
+  <title>Alone Auth — Sheet DB</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Outfit','Segoe UI',system-ui,-apple-system,sans-serif;
+      background:#080808;color:#e0e0e0;
+      min-height:100vh;display:flex;flex-direction:column;align-items:center;
+      overflow:hidden
+    }
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#444;border-radius:4px}
+
+    #homeScreen.page.show{display:block;overflow:hidden}
+    .page{display:none;width:100%;height:100vh;flex-direction:column;align-items:center;justify-content:center}
+    .page.show{display:flex}
+    .page-scroll{display:none;width:100%;height:100vh;flex-direction:column;align-items:center;overflow-y:auto}
+    .page-scroll.show{display:flex}
+    #app{display:none;width:100%;height:100vh;flex-direction:column}
+    #app.show{display:flex}
+
+    /* ── Home (KeyAuth inspired) ── */
+
+    /* Animated orbs background */
+    .home-orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+    .home-orb-1{width:500px;height:500px;background:rgba(100,200,100,.05);top:-20%;left:-10%;animation:orbFloat1 20s ease-in-out infinite}
+    .home-orb-2{width:400px;height:400px;background:rgba(100,100,255,.04);bottom:-15%;right:-10%;animation:orbFloat2 25s ease-in-out infinite}
+    .home-orb-3{width:300px;height:300px;background:rgba(100,200,100,.03);top:40%;left:50%;transform:translateX(-50%);animation:orbFloat3 18s ease-in-out infinite}
+    @keyframes orbFloat1{0%,100%{transform:translate(0,0)}33%{transform:translate(80px,-60px)}66%{transform:translate(-40px,40px)}}
+    @keyframes orbFloat2{0%,100%{transform:translate(0,0)}33%{transform:translate(-60px,80px)}66%{transform:translate(50px,-30px)}}
+    @keyframes orbFloat3{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.2)}}
+
+    /* Glass Nav */
+    .home-nav{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:50;width:100%;max-width:660px;padding:0 16px}
+    .home-nav nav{
+      background:rgba(26,26,26,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border:1px solid rgba(255,255,255,.06);border-radius:20px;
+      padding:10px 20px;display:flex;align-items:center;justify-content:space-between
+    }
+    .home-nav .brand{font-size:22px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;flex-shrink:0}
+    .home-nav .brand span{color:#888;font-weight:300}
+    .home-nav .nav-right{display:flex;gap:10px;margin-left:auto}
+    .home-nav .nav-right a{padding:8px 22px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;transition:all .25s;text-decoration:none;color:#bbb;border:1px solid rgba(255,255,255,.06);background:transparent}
+    .home-nav .nav-right a:hover{border-color:rgba(100,200,100,.3);color:#8c8}
+    .home-nav .nav-right a.active{background:linear-gradient(135deg,rgba(100,200,100,.15),rgba(100,200,100,.06));color:#7d7;border:1px solid rgba(100,200,100,.25)}
+    .home-nav .nav-right a.pri{
+      background:linear-gradient(135deg,rgba(100,200,100,.12),rgba(100,200,100,.05));
+      color:#8c8;border:1px solid rgba(100,200,100,.15)
+    }
+    .home-nav .nav-right a.pri:hover{background:linear-gradient(135deg,rgba(100,200,100,.18),rgba(100,200,100,.08));box-shadow:0 4px 20px rgba(100,200,100,.06)}
+
+    /* Home scrollable container */
+    .home-scroll{width:100%;height:100vh;overflow-y:auto;position:relative}
+    .home-scroll::-webkit-scrollbar{width:4px}
+    .home-scroll::-webkit-scrollbar-track{background:transparent}
+    .home-scroll::-webkit-scrollbar-thumb{background:#1a1a1a;border-radius:4px}
+
+    /* Hero section */
+    .hero-section{
+      min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;
+      padding:80px 24px 20px;position:relative;overflow:hidden
+    }
+    .hero-bg{position:absolute;inset:0;pointer-events:none}
+    .hero-bg .spotlight{
+      position:absolute;top:-10%;left:50%;transform:translateX(-50%);
+      width:900px;height:500px;
+      background:radial-gradient(ellipse,rgba(100,200,100,.04) 0%,transparent 60%)
+    }
+    .hero-bg .grid{
+      position:absolute;inset:0;
+      background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+      background-size:60px 60px
+    }
+    .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1100px;width:100%;align-items:center;position:relative;z-index:1}
+    .hero-left{text-align:left}
+    .hero-left .tag{
+      display:inline-block;font-size:13px;font-weight:700;color:#7c7;letter-spacing:1.5px;text-transform:uppercase;
+      background:rgba(100,200,100,.08);border:1px solid rgba(100,200,100,.15);border-radius:100px;
+      padding:6px 18px;margin-bottom:22px
+    }
+    .hero-left h1{
+      font-size:60px;font-weight:900;line-height:1.1;margin-bottom:12px;letter-spacing:-1.5px
+    }
+    .hero-left h1 .grad{
+      background:linear-gradient(135deg,#8c8,#5d5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      font-weight:900
+    }
+    .hero-left h1{color:#fff;text-shadow:0 0 60px rgba(255,255,255,.06)}
+    .hero-left p{font-size:18px;color:#999;line-height:1.7;margin-bottom:30px;max-width:500px}
+    .hero-left .cta-row{display:flex;gap:12px;flex-wrap:wrap}
+    .hero-left .cta-row a{
+      padding:16px 36px;border-radius:16px;font-size:15px;font-weight:700;
+      cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);text-decoration:none;
+      display:inline-flex;align-items:center;gap:10px
+    }
+    .hero-left .cta-row a.pri{
+      background:linear-gradient(135deg,rgba(100,200,100,.15),rgba(100,200,100,.06));
+      color:#8c8;border:1px solid rgba(100,200,100,.2);
+      box-shadow:0 4px 30px rgba(100,200,100,.12)
+    }
+    .hero-left .cta-row a.pri:hover{transform:translateY(-2px);box-shadow:0 8px 50px rgba(100,200,100,.2)}
+    .hero-left .cta-row a.sec{color:#888;border:1px solid #1a1a1a;background:transparent}
+    .hero-left .cta-row a.sec:hover{border-color:#555;color:#ccc;transform:translateY(-2px)}
+    .hero-right{display:flex;justify-content:center;align-items:center}
+    .hero-right .preview-card{
+      background:#0d0d0d;border:1px solid #1a1a1a;border-radius:20px;
+      padding:28px;width:100%;max-width:420px;position:relative;overflow:hidden
+    }
+    .hero-right .preview-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent,rgba(100,200,100,.3),transparent)
+    }
+    .hero-right .preview-card .pc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .hero-right .preview-card .pc-head .dots{display:flex;gap:6px}
+    .hero-right .preview-card .pc-head .dots span{width:8px;height:8px;border-radius:50%;background:#1a1a1a}
+    .hero-right .preview-card .pc-head .dots span:nth-child(1){background:rgba(200,100,100,.3)}
+    .hero-right .preview-card .pc-head .dots span:nth-child(2){background:rgba(200,180,100,.3)}
+    .hero-right .preview-card .pc-head .dots span:nth-child(3){background:rgba(100,200,100,.3)}
+    .hero-right .preview-card .pc-head .pc-label{font-size:12px;color:#888;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
+    .hero-right .preview-card .pc-line{display:flex;gap:10px;margin-bottom:12px;align-items:center}
+    .hero-right .preview-card .pc-line .pc-dot{width:6px;height:6px;border-radius:50%;background:rgba(100,200,100,.15);flex-shrink:0}
+    .hero-right .preview-card .pc-line .pc-bar{height:10px;border-radius:4px;background:rgba(255,255,255,.04);flex:1}
+    .hero-right .preview-card .pc-line .pc-bar.fill{background:rgba(100,200,100,.1)}
+    .hero-right .preview-card .pc-line .pc-bar.fill-2{background:rgba(100,100,255,.08)}
+    .hero-right .preview-card .pc-status{margin-top:16px;padding:10px 14px;background:rgba(100,200,100,.04);border:1px solid rgba(100,200,100,.08);border-radius:10px;display:flex;align-items:center;gap:8px}
+    .hero-right .preview-card .pc-status .g{width:6px;height:6px;border-radius:50%;background:#8c8;box-shadow:0 0 20px rgba(100,200,100,.5);animation:pulse 2s infinite}
+    .hero-right .preview-card .pc-status span{font-size:12px;color:#8c8;font-weight:500}
+
+    /* Section common */
+    .hm-section{padding:50px 24px;position:relative}
+    .hm-section-inner{max-width:1040px;margin:0 auto;text-align:center}
+    .hm-section .section-tag{
+      display:inline-block;font-size:12px;font-weight:700;color:#7c7;letter-spacing:1.5px;text-transform:uppercase;
+      background:rgba(100,200,100,.08);border:1px solid rgba(100,200,100,.15);border-radius:100px;
+      padding:5px 16px;margin-bottom:14px
+    }
+    .hm-section h2{font-size:36px;font-weight:800;color:#fff;margin-bottom:10px;text-shadow:0 0 30px rgba(255,255,255,.03);letter-spacing:-.5px}
+    .hm-section .section-sub{font-size:16px;color:#999;max-width:560px;margin:0 auto 32px}
+
+    /* Stats grid */
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:700px;margin:0 auto}
+    .stat-card{
+      background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;
+      padding:24px 16px;text-align:center;transition:all .3s
+    }
+    .stat-card:hover{border-color:#1a1a1a;transform:translateY(-2px);background:#101010}
+    .stat-card .num{font-size:38px;font-weight:900;color:#fff;margin-bottom:4px}
+    .stat-card .lbl{font-size:14px;color:#999}
+    .feature-card h3{font-size:17px;font-weight:700;color:#fff;margin-bottom:6px}
+    .feature-card p{font-size:14px;color:#999;line-height:1.6}
+
+    /* Steps */
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .step-card{
+      background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;
+      padding:24px 20px;text-align:left;transition:all .3s
+    }
+    .step-card:hover{border-color:#1a1a1a;transform:translateY(-2px)}
+    .step-card .step-n{font-size:38px;font-weight:900;color:rgba(100,200,100,.06);margin-bottom:2px;line-height:1}
+    .step-card h3{font-size:17px;font-weight:700;color:#fff;margin-bottom:6px}
+    .step-card p{font-size:14px;color:#888;line-height:1.6}
+
+    .lang-marquee{text-align:center;padding:20px 24px}
+    .lang-marquee p{font-size:14px;color:#888;margin-bottom:14px}
+    .lang-tags{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:10px}
+    .lang-tag{font-size:12px;padding:5px 14px;border-radius:100px;
+      border:1px solid #1a1a1a;color:#888;background:rgba(255,255,255,.02)
+    }
+    .marquee-track{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+    .marquee-track span{font-size:14px;padding:8px 20px;border-radius:100px;background:rgba(100,200,100,.04);border:1px solid rgba(100,200,100,.08);color:#8c8;font-weight:600}
+
+    /* Home footer */
+    .home-footer{text-align:center;padding:24px 24px;border-top:1px solid #0d0d0d;position:relative}
+    .home-footer p{font-size:13px;color:#777}
+    .home-footer span{color:#888}
+
+    /* Why grid */
+    .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:900px;margin:0 auto}
+    .why-item{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;padding:24px 18px;text-align:center;transition:all .3s}
+    .why-item:hover{border-color:#1a1a1a;transform:translateY(-2px);background:#101010}
+    .why-item .wi-icon{width:42px;height:42px;border-radius:10px;background:rgba(100,200,100,.06);border:1px solid rgba(100,200,100,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+    .why-item .wi-icon svg{width:20px;height:20px}
+    .why-item h3{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
+    .why-item p{font-size:13px;color:#999;line-height:1.5}
+
+    /* Grids */
+    .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:900px;margin:0 auto}
+    .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;margin:0 auto}
+    .donate-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:560px;margin:0 auto}
+
+    /* Feature card icon */
+    .feature-card .fc-icon{width:40px;height:40px;border-radius:10px;background:rgba(100,200,100,.06);border:1px solid rgba(100,200,100,.1);display:flex;align-items:center;justify-content:center;margin-bottom:12px;flex-shrink:0}
+    .feature-card .fc-icon svg{width:18px;height:18px}
+
+    /* Pricing cards */
+    .pricing-card{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:16px;padding:32px 24px;text-align:center;transition:all .3s;display:flex;flex-direction:column}
+    .pricing-card:hover{border-color:#2a2a2a;transform:translateY(-4px);background:#101010}
+    .pricing-card.pc-highlight{border-color:rgba(100,200,100,.15);background:rgba(100,200,100,.02);position:relative}
+    .pricing-card.pc-highlight::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(100,200,100,.25),transparent)}
+    .pc-badge{display:inline-block;font-size:11px;font-weight:700;color:#8c8;background:rgba(100,200,100,.1);border:1px solid rgba(100,200,100,.18);border-radius:100px;padding:4px 14px;margin-bottom:16px;align-self:center;text-transform:uppercase;letter-spacing:.5px}
+    .pc-price{font-size:44px;font-weight:900;color:#fff;line-height:1;margin-bottom:4px;letter-spacing:-1px}
+    .pc-period{font-size:13px;color:#999;margin-bottom:18px}
+    .pricing-card ul{list-style:none;text-align:left;margin-bottom:20px;flex:1}
+    .pricing-card ul li{padding:8px 0;font-size:14px;color:#999;border-bottom:1px solid rgba(255,255,255,.02)}
+    .pricing-card ul li:last-child{border-bottom:none}
+    .btn-pricing{display:block;padding:12px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s;text-decoration:none;background:rgba(100,200,100,.13);color:#8c8;border:1px solid rgba(100,200,100,.2)}
+    .btn-pricing:hover{background:rgba(100,200,100,.2);transform:translateY(-2px);box-shadow:0 4px 30px rgba(100,200,100,.1)}
+
+    /* Donate items */
+    .donate-item{display:flex;align-items:center;gap:14px;background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:14px 16px;transition:all .3s}
+    .donate-item:hover{border-color:#2a2a2a;background:#101010}
+    .donate-item .di-icon{width:36px;height:36px;border-radius:10px;background:rgba(100,200,100,.06);border:1px solid rgba(100,200,100,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .donate-item .di-icon svg{width:16px;height:16px}
+    .donate-item .di-body{flex:1;min-width:0}
+    .donate-item .di-body .label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+    .donate-item .di-body .addr{font-size:13px;color:#bbb;font-family:'SF Mono',monospace;word-break:break-all;line-height:1.4}
+    .donate-item .copy-d{font-size:11px;color:#888;cursor:pointer;padding:6px 12px;border-radius:6px;border:1px solid #1a1a1a;transition:all .2s;flex-shrink:0;background:transparent}
+    .donate-item .copy-d:hover{border-color:#555;color:#ddd}
+    .donate-footer{margin-top:24px;padding:14px;background:rgba(255,255,255,.015);border:1px solid #151515;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:#999}
+
+    /* FAQ */
+    .faq-list{max-width:660px;margin:0 auto;text-align:left}
+    .faq-item{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:16px 20px;margin-bottom:10px;cursor:pointer;transition:all .2s}
+    .faq-item:hover{border-color:#2a2a2a}
+    .faq-item .faq-q{font-size:16px;font-weight:600;color:#ddd;display:flex;justify-content:space-between;align-items:center;user-select:none}
+    .faq-item .faq-arrow{font-size:11px;color:#888;transition:transform .3s}
+    .faq-item.open .faq-arrow{transform:rotate(180deg)}
+    .faq-item .faq-a{font-size:14px;color:#999;line-height:1.6;margin-top:0;max-height:0;overflow:hidden;transition:all .35s cubic-bezier(.4,0,.2,1)}
+    .faq-item.open .faq-a{max-height:300px;margin-top:14px}
+
+    .bg-highlight{background:rgba(255,255,255,.01);border-top:1px solid #0d0d0d;border-bottom:1px solid #0d0d0d}
+
+    /* Lang detail cards */
+    .lang-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:900px;margin:0 auto}
+    .lang-detail-card{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:14px;padding:22px;text-align:left;transition:all .3s}
+    .lang-detail-card:hover{border-color:#1a1a1a;transform:translateY(-2px);background:#101010}
+    .lang-detail-card .ld-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .lang-detail-card .ld-icon{width:34px;height:34px;border-radius:8px;background:rgba(100,200,100,.06);border:1px solid rgba(100,200,100,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .lang-detail-card .ld-icon svg{width:16px;height:16px}
+    .lang-detail-card .ld-name{font-size:18px;font-weight:700;color:#fff}
+    .lang-detail-card .ld-detail{font-size:14px;color:#999;line-height:1.6;margin-bottom:12px}
+    .lang-detail-card .ld-detail span{color:#888;font-family:'SF Mono',monospace;font-size:12px}
+    .lang-detail-card .ld-footer{display:flex;gap:6px;flex-wrap:wrap}
+    .lang-detail-card .ld-badge{padding:4px 12px;border-radius:100px;font-size:10px;font-weight:600;background:rgba(255,255,255,.03);border:1px solid #1a1a1a;color:#888;text-transform:uppercase;letter-spacing:.5px}
+
+    /* Dashboard top bar */
+    .top-bar{display:flex;align-items:center;gap:14px;padding:14px 40px;border-bottom:1px solid #141414;flex-shrink:0;min-height:60px}
+    .top-bar .home-link{font-size:14px;color:#888;cursor:pointer;transition:color .2s}
+    .top-bar .home-link:hover{color:#ccc}
+    .top-bar .brand{font-size:22px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff}
+    .top-bar .brand span{color:#888;font-weight:300}
+    .top-bar .right{display:flex;align-items:center;gap:14px}
+    .top-bar .sid-pill{
+      font-size:13px;color:#888;background:rgba(255,255,255,.03);
+      padding:6px 16px;border-radius:20px;font-family:'SF Mono',monospace;
+      border:1px solid rgba(255,255,255,.04);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+    }
+    .top-bar .change-btn{font-size:14px}
+
+    .tab-bar{display:flex;gap:0;padding:0 40px;border-bottom:1px solid #141414;flex-shrink:0}
+    .tab{padding:16px 32px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#888;cursor:pointer;transition:all .25s;border-bottom:2px solid transparent;user-select:none}
+    .tab:hover{color:#ddd}
+    .tab.active{color:#8c8;border-bottom-color:#8c8;text-shadow:0 0 20px rgba(100,200,100,.15)}
+    .tab-content{display:none;flex:1;padding:32px 40px;overflow-y:auto}
+    .tab-content.active{display:block}
+    .tab-content.active.flex{display:flex;flex-direction:column}
+    .sub-tab-bar{display:flex;gap:0;border-bottom:1px solid #141414;margin-bottom:24px;flex-shrink:0}
+    .sub-tab{padding:14px 28px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;cursor:pointer;transition:all .25s;border-bottom:2px solid transparent;user-select:none}
+    .sub-tab:hover{color:#ddd}
+    .sub-tab.active{color:#8c8;border-bottom-color:#8c8;text-shadow:0 0 20px rgba(100,200,100,.15)}
+    .sub-content{display:none}
+    .sub-content.active{display:block}
+
+    .btn{
+      padding:12px 26px;border-radius:12px;font-size:14px;font-weight:700;
+      cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);
+      border:none;display:inline-flex;align-items:center;gap:8px
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn:active{transform:scale(.96)}
+    .btn-pri{background:linear-gradient(135deg,rgba(100,200,100,.15),rgba(100,200,100,.06));color:#8c8;border:1px solid rgba(100,200,100,.2)}
+    .btn-pri:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn-pri:hover{background:linear-gradient(135deg,rgba(100,200,100,.22),rgba(100,200,100,.1));box-shadow:0 4px 30px rgba(100,200,100,.12)}
+    .btn-ghost{background:transparent;color:#888;border:1px solid #1a1a1a}
+    .btn-ghost:hover{border-color:#555;color:#ccc;background:rgba(255,255,255,.03)}
+    .btn-xs{padding:6px 12px;font-size:12px;border-radius:6px}
+    .btn-block{width:100%;justify-content:center;padding:14px}
+    .btn-green{background:rgba(100,200,100,.12);color:#8c8;border:1px solid rgba(100,200,100,.2)}
+    .btn-green:hover{background:rgba(100,200,100,.18);box-shadow:0 4px 20px rgba(100,200,100,.08);transform:translateY(-2px)}
+
+    .dash-actions{display:flex;gap:12px;margin-bottom:24px;flex-shrink:0;align-items:center}
+    .user-count{font-size:14px;color:#888;margin-left:auto;align-self:center}
+
+    .table-wrap{background:#0a0a0a;border:1px solid #151515;border-radius:14px;overflow:hidden;flex:1;overflow-y:auto;position:relative}
+    .table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(100,200,100,.08),transparent)}
+    table{width:100%;border-collapse:collapse}
+    th{background:rgba(255,255,255,.015);padding:18px 24px;text-align:left;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#888;border-bottom:1px solid #141414;user-select:none;position:sticky;top:0}
+    td{padding:16px 24px;font-size:15px;color:#ccc;border-bottom:1px solid #0d0d0d}
+    tr:last-child td{border-bottom:none}
+    tr{animation:rowIn .35s ease backwards}
+    @keyframes rowIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+    tr:hover td{background:rgba(255,255,255,.02)}
+    tr:hover td:first-child{box-shadow:inset 3px 0 0 rgba(100,200,100,.15)}
+
+    .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+    .badge::before{content:'';width:5px;height:5px;border-radius:50%}
+    .badge-active{background:rgba(100,200,100,.06);color:#8c8;border:1px solid rgba(100,200,100,.12)}
+    .badge-active::before{background:#8c8;box-shadow:0 0 8px rgba(100,200,100,.2)}
+    .badge-pending{background:rgba(255,200,100,.04);color:#886;border:1px solid rgba(255,200,100,.08);border-style:dashed}
+    .badge-pending::before{background:#aa7;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    .empty-state{text-align:center;padding:48px 20px}
+    .empty-state .empty-icon{font-size:30px;margin-bottom:10px;opacity:.12}
+    .empty-state .empty-text{font-size:14px;color:#888}
+
+    .settings-section{background:#0a0a0a;border:1px solid #151515;border-radius:14px;padding:28px;margin-bottom:20px;position:relative}
+    .settings-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(100,200,100,.06),transparent)}
+    .settings-section h3{font-size:13px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+    .settings-section label{display:block;font-size:12px;color:#888;margin-bottom:6px}
+    .settings-section input{width:100%;padding:12px 14px;background:#050505;border:1px solid #1a1a1a;border-radius:8px;color:#e0e0e0;font-size:14px;font-family:'SF Mono',monospace;outline:none;transition:all .3s;margin-bottom:16px}
+    .settings-section input:focus{border-color:#555;box-shadow:0 0 0 3px rgba(255,255,255,.03)}
+    .settings-section .current-sid{font-size:12px;color:#999;font-family:'SF Mono',monospace;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:8px;margin-bottom:16px;word-break:break-all}
+
+    .code-wrap{position:relative;background:#050505;border:1px solid #1a1a1a;border-radius:10px;overflow:hidden;margin-top:8px}
+    .code-wrap .code-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(255,255,255,.015);border-bottom:1px solid #141414}
+    .code-wrap .code-header span{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.8px}
+    .code-wrap pre{padding:20px 24px;overflow-x:auto;font-size:13px;line-height:1.6;font-family:'SF Mono','Cascadia Code','Consolas',monospace;color:#aaa;margin:0;tab-size:4}
+    .code-wrap .copy-btn{padding:4px 12px;font-size:10px;border-radius:6px;cursor:pointer;background:transparent;color:#888;border:1px solid #1a1a1a;transition:all .2s}
+    .code-wrap .copy-btn:hover{border-color:#666;color:#ccc}
+
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;z-index:100;animation:overlayIn .25s ease}
+    .modal-overlay.show{display:flex}
+    @keyframes overlayIn{from{opacity:0}to{opacity:1}}
+    .modal{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:16px;padding:32px;width:420px;max-width:90vw;animation:modalIn .35s cubic-bezier(.22,1,.36,1)}
+    @keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .modal .m-icon{text-align:center;font-size:34px;margin-bottom:10px}
+    .modal h3{font-size:16px;font-weight:700;color:#fff;text-align:center;margin-bottom:4px}
+    .modal p{font-size:13px;color:#999;text-align:center;margin-bottom:22px}
+    .modal .btn-row{display:flex;gap:12px}
+    .modal .btn-row .btn{flex:1;justify-content:center;padding:12px;border-radius:10px;font-size:13px}
+    .modal label{display:block;font-size:11px;color:#888;margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
+    .modal input{width:100%;padding:12px 14px;background:#050505;border:1px solid #1a1a1a;border-radius:8px;color:#e0e0e0;font-size:13px;outline:none;margin-bottom:16px}
+    .modal input:focus{border-color:#444}
+    .btn-confirm{background:rgba(100,200,100,.12);color:#8c8;border:1px solid rgba(100,200,100,.2)}
+    .btn-confirm:hover{background:rgba(100,200,100,.18);box-shadow:0 4px 20px rgba(100,200,100,.08);transform:translateY(-2px)}
+    .btn-cancel{background:rgba(200,100,100,.1);color:#c88;border:1px solid rgba(200,100,100,.15)}
+    .btn-cancel:hover{background:rgba(200,100,100,.15);box-shadow:0 4px 20px rgba(200,100,100,.06);transform:translateY(-2px)}
+
+    .toast-container{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+    .toast{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(18,18,18,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.06);border-radius:10px;font-size:13px;font-weight:500;color:#ddd;min-width:280px;max-width:400px;box-shadow:0 10px 40px rgba(0,0,0,.6);animation:toastIn .4s cubic-bezier(.22,1,.36,1);transition:all .35s;position:relative;overflow:hidden}
+    .toast::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+    .toast.toast-success{border-color:rgba(100,200,100,.12)}
+    .toast.toast-success::before{background:#7c7;box-shadow:0 0 16px rgba(100,200,100,.15)}
+    .toast.toast-error{border-color:rgba(200,100,100,.12)}
+    .toast.toast-error::before{background:#c77;box-shadow:0 0 16px rgba(200,100,100,.1)}
+    .toast.toast-out{opacity:0;transform:translateX(50px)}
+    @keyframes toastIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
+    .toast .t-icon{width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.04)}
+    .toast .t-icon svg{width:14px;height:14px}
+
+    /* ── Instructions ── */
+    .help-toggle{display:inline-block;font-size:12px;color:#888;cursor:pointer;margin:12px 0;transition:color .2s;user-select:none}
+    .help-toggle:hover{color:#aaa}
+    .help-box{display:none;text-align:left;background:rgba(255,255,255,.015);border:1px solid #151515;border-radius:10px;padding:18px 20px;font-size:13px;color:#999;line-height:1.7;margin-top:8px}
+    .help-box.show{display:block}
+    .help-box .step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+    .help-box .step:last-child{margin-bottom:0}
+    .help-box .step-num{background:rgba(255,255,255,.03);color:#999;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+    .help-box .step span{color:#999}
+
+    .skel{background:linear-gradient(90deg,rgba(255,255,255,.03) 25%,rgba(255,255,255,.07) 50%,rgba(255,255,255,.03) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:14px}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .skel-row td{padding:18px 20px}
+    .skel-row .skel{height:12px}
+
+    /* ── Mobile ── */
+    @media(max-width:768px){
+      .home-nav{top:6px;max-width:98%;padding:0 6px}
+      .home-nav nav{padding:6px 10px;gap:6px;border-radius:14px}
+      .home-nav .brand{font-size:14px;letter-spacing:1px}
+      .home-nav .nav-right{gap:4px}
+      .home-nav .nav-right a{padding:5px 10px;font-size:10px;border-radius:8px}
+      .hero-section{min-height:auto;padding:70px 12px 32px}
+      .hero-inner{flex-direction:column;gap:24px;text-align:center}
+      .hero-left h1{font-size:28px;line-height:1.2}
+      .hero-left .tag{font-size:9px;padding:3px 10px}
+      .hero-left p{font-size:14px}
+      .cta-row{justify-content:center;gap:8px}
+      .cta-row a{padding:8px 16px;font-size:12px}
+      .hero-right .preview-card{max-width:100%;padding:14px}
+      .preview-card .pc-head .pc-label{font-size:11px}
+      .preview-card .pc-bar{height:6px}
+      .hm-section-inner{padding:0 12px}
+      .hm-section{padding:32px 0}
+      .hm-section h2{font-size:20px}
+      .hm-section .section-sub{font-size:13px}
+      .features-grid,.why-grid,.sdk-grid,.pricing-grid,.donate-grid{grid-template-columns:1fr;gap:10px}
+      .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
+      .stat-item{padding:16px}
+      .stat-item .stat-num{font-size:24px}
+      .stat-item .stat-label{font-size:11px}
+      .lang-marquee{gap:16px;padding:16px 0}
+      .lang-badge{padding:6px 14px;font-size:11px}
+      .section-tag{font-size:9px;padding:3px 10px}
+      .feature-card,.why-card,.sdk-card{padding:16px}
+      .feature-card .fc-icon,.why-card .wc-icon,.sdk-card .sc-icon{width:36px;height:36px}
+      .feature-card h3,.why-card h3,.sdk-card h3{font-size:14px}
+      .feature-card p,.why-card p,.sdk-card p,.sdk-card .tech{font-size:11px}
+      .pricing-card{padding:24px 16px}
+      .pricing-card .pc-price{font-size:36px}
+      .pricing-card .pc-features{font-size:12px}
+      .footer-links{flex-direction:column;gap:6px;text-align:center;font-size:11px}
+      .donate-item{padding:10px 12px;gap:10px}
+      .donate-item .di-icon{width:28px;height:28px}
+      .donate-item .di-icon svg{width:12px;height:12px}
+      .donate-item .addr{font-size:10px}
+      .donate-item .copy-d{font-size:9px;padding:4px 8px}
+      .donate-footer{font-size:12px;padding:10px}
+      #app .top-bar{padding:6px 10px;gap:4px}
+      #app .top-bar .left{gap:6px}
+      #app .top-bar .brand{font-size:13px}
+      #app .top-bar .home-link{font-size:11px}
+      #app .top-bar .sid-pill{font-size:9px;max-width:100px;padding:3px 8px}
+      #app .top-bar .btn-ghost{font-size:10px;padding:4px 10px}
+      #app .tab-bar{gap:2px;padding:0 10px}
+      #app .tab-bar .tab{font-size:10px;padding:6px 10px;border-radius:6px}
+      .dash-actions{flex-wrap:wrap;gap:6px;padding:12px 10px}
+      .dash-actions .btn{font-size:11px;padding:6px 12px}
+      .table-wrap{overflow-x:auto;margin:0}
+      .table-wrap table{font-size:11px}
+      .table-wrap th,.table-wrap td{padding:8px 10px;white-space:nowrap}
+      #noSidMsg{padding:24px 16px;font-size:13px}
+      .settings-section{padding:16px 12px}
+      .settings-section h3{font-size:14px}
+      .settings-section label{font-size:11px}
+      .settings-section input{font-size:12px;padding:10px 12px}
+      .settings-section .btn{font-size:12px;padding:10px}
+      .code-wrap .code-header span{font-size:11px}
+      .code-wrap .copy-btn{font-size:10px;padding:4px 8px}
+      pre code{font-size:10px}
+      .home-footer{font-size:11px;padding:20px 12px}
+      .faq-list{padding:0}
+      .faq-item{padding:14px 16px}
+      .faq-item .faq-q{font-size:13px;padding:0}
+      .faq-item .faq-a{font-size:12px;padding:0}
+      .modal-content{padding:24px 20px;max-width:90%}
+      .modal-content h2{font-size:18px}
+      .modal-content input{font-size:12px;padding:10px 12px}
+      .toast{font-size:12px;padding:10px 16px;min-width:auto;max-width:90%}
+      .skel-row td{padding:12px 14px}
+      .skel{height:10px}
+    }
+    @media(max-width:480px){
+      .home-nav{top:4px}
+      .home-nav nav{padding:5px 8px;border-radius:12px;justify-content:space-between}
+      .home-nav .brand{font-size:12px}
+      .home-nav .nav-right a{padding:4px 8px;font-size:9px}
+      .hero-left h1{font-size:20px}
+      .hero-left .tag{font-size:8px;padding:2px 8px}
+      .hero-left p{font-size:13px}
+      .cta-row a{padding:6px 12px;font-size:11px}
+      .preview-card{padding:10px}
+      .preview-card .pc-head .pc-label{font-size:10px}
+      .preview-card .pc-bar{height:5px}
+      .stats-grid{grid-template-columns:1fr}
+      .hm-section h2{font-size:18px}
+      .pricing-card{padding:20px 14px}
+      .pricing-card .pc-price{font-size:30px}
+      .donate-item{flex-wrap:wrap}
+      .donate-item .copy-d{margin-left:auto}
+      #app .top-bar .brand{font-size:12px}
+      #app .top-bar .sid-pill{max-width:80px;font-size:8px}
+      #app .tab-bar .tab{font-size:9px;padding:5px 8px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HOME (KeyAuth inspired) ═══ -->
+<div class="page show" id="homeScreen">
+  <!-- Animated orbs -->
+  <div class="home-orb home-orb-1"></div>
+  <div class="home-orb home-orb-2"></div>
+  <div class="home-orb home-orb-3"></div>
+
+  <!-- Glass Nav -->
+  <div class="home-nav">
+    <nav>
+      <div class="brand"><b>Alone</b> <span>Auth</span></div>
+      <div class="nav-right">
+        <a onclick="scrollToSection('homeDonate')">Donate</a>
+        <a class="pri" onclick="showPage('app');switchTab('dashboard')">Get Started</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="home-scroll">
+
+    <!-- ═══ HERO ═══ -->
+    <section class="hero-section">
+      <div class="hero-bg">
+        <div class="spotlight"></div>
+        <div class="grid"></div>
+      </div>
+      <div class="hero-inner">
+        <div class="hero-left">
+          <div class="tag">⚡ Multi-Tenant Auth</div>
+          <h1><span class="grad">Authentication that's made for everyone.</span></h1>
+          <p id="heroDesc"></p>
+          <div class="cta-row">
+            <a class="pri" onclick="showPage('app');switchTab('dashboard')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              Get Started
+            </a>
+            <a class="sec" onclick="scrollToSection('homeDonate')">Donate</a>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="preview-card">
+            <div class="pc-head">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <div class="pc-label">Alone Auth</div>
+              <div class="dots"></div>
+            </div>
+            <div class="pc-line"><div class="pc-dot"></div><div class="pc-bar fill"></div></div>
+            <div class="pc-line"><div class="pc-dot"></div><div class="pc-bar fill-2"></div></div>
+            <div class="pc-line"><div class="pc-dot"></div><div class="pc-bar"></div></div>
+            <div class="pc-line"><div class="pc-dot"></div><div class="pc-bar fill"></div></div>
+            <div class="pc-status">
+              <div class="g"></div>
+              <span style="font-size:12px;color:#8c8">All systems operational</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ LANGUAGES ═══ -->
+    <section class="lang-marquee">
+      <p>Integrate into any programming language</p>
+      <div class="marquee-track">
+        <span>C++</span><span>C#</span><span>Python</span>
+      </div>
+    </section>
+
+    <!-- ═══ STATS ═══ -->
+    <section class="hm-section">
+      <div class="hm-section-inner">
+        <div class="section-tag">Numbers don't lie</div>
+        <h2>Built for developers.</h2>
+        <div class="section-sub">Simple, fast, and works everywhere.</div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="num">3</div><div class="lbl">Languages Supported</div></div>
+          <div class="stat-card"><div class="num">1</div><div class="lbl">Backend (Apps Script)</div></div>
+          <div class="stat-card"><div class="num">0</div><div class="lbl">Servers to Manage</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FEATURES ═══ -->
+    <section class="hm-section">
+      <div class="hm-section-inner">
+        <div class="section-tag">Features</div>
+        <h2>Everything you need.</h2>
+        <div class="section-sub">A comprehensive auth system powered by Google Sheets.</div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="fc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.4)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <h3>Secure Auth</h3>
+            <p>Username & password login with HWID binding. Create, delete, reset users with one click.</p>
+          </div>
+          <div class="feature-card">
+            <div class="fc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.4)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            </div>
+            <h3>Multi-Client</h3>
+            <p>Ready-made libraries for C++, C#, and Python. Drop the header/module in and you're done.</p>
+          </div>
+          <div class="feature-card">
+            <div class="fc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.4)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h3>Real-time Control</h3>
+            <p>Web admin panel to manage users, view analytics, and control access from anywhere.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ STEPS ═══ -->
+    <section class="hm-section">
+      <div class="hm-section-inner">
+        <div class="section-tag">Simple Setup</div>
+        <h2>Get started in 3 steps.</h2>
+        <div class="section-sub">No servers, no databases, no config.</div>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-n">01</div>
+            <h3>Create a Sheet</h3>
+            <p>Go to sheets.google.com, create a new Sheet, share it, and publish to web.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-n">02</div>
+            <h3>Paste Sheet ID</h3>
+            <p>Copy the ID from the URL and paste it into the admin panel. Click connect.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-n">03</div>
+            <h3>Integrate & Go</h3>
+            <p>Download auth.h, auth.cs, or auth.py. Call login() and you're live.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ WHY ═══ -->
+    <section class="hm-section bg-highlight">
+      <div class="hm-section-inner">
+        <div class="section-tag">Why Alone Auth</div>
+        <h2>No servers. No database. No cost.</h2>
+        <div class="section-sub">Everything runs on Google Sheets. Zero infrastructure.</div>
+        <div class="why-grid">
+          <div class="why-item">
+            <div class="wi-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.5)" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>Zero Infra</h3>
+            <p>No VPS, no database server, no backend API to maintain.</p>
+          </div>
+          <div class="why-item">
+            <div class="wi-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.5)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 11.5A8.5 8.5 0 014 17"/><path d="M20 17a8.5 8.5 0 00-7-5"/></svg>
+            </div>
+            <h3>Multi-Language</h3>
+            <p>C++, C#, Python — ready-made libraries, drop-in setup.</p>
+          </div>
+          <div class="why-item">
+            <div class="wi-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.5)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <h3>Secure by Design</h3>
+            <p>HWID binding, password hashing, admin control panel included.</p>
+          </div>
+          <div class="why-item">
+            <div class="wi-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.5)" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            </div>
+            <h3>Free Forever</h3>
+            <p>No subscriptions. Google Sheets is your database — free tier included.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ LANG DETAILS ═══ -->
+    <section class="hm-section">
+      <div class="hm-section-inner">
+        <div class="section-tag">SDKs</div>
+        <h2>One auth system, three languages.</h2>
+        <div class="section-sub">Pick your language. Drop the file. Call login().</div>
+        <div class="lang-detail-grid">
+          <div class="lang-detail-card">
+            <div class="ld-head">
+              <span class="ld-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.4)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              </span>
+              <span class="ld-name">C++</span>
+            </div>
+            <div class="ld-detail">Single-header library. No dependencies. Windows native (WinHTTP + IPHLPAPI). Just <span>#include "auth.h"</span>.</div>
+            <div class="ld-footer">
+              <span class="ld-badge">Header-only</span>
+              <span class="ld-badge">No deps</span>
+            </div>
+          </div>
+          <div class="lang-detail-card">
+            <div class="ld-head">
+              <span class="ld-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.4)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+              </span>
+              <span class="ld-name">C#</span>
+            </div>
+            <div class="ld-detail">Single file class library. Requires <span>System.Text.Json</span> (in-box). Just add <span>auth.cs</span> to your project.</div>
+            <div class="ld-footer">
+              <span class="ld-badge">Single file</span>
+              <span class="ld-badge">.NET 6+</span>
+            </div>
+          </div>
+          <div class="lang-detail-card">
+            <div class="ld-head">
+              <span class="ld-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.4)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </span>
+              <span class="ld-name">Python</span>
+            </div>
+            <div class="ld-detail">Single-file module. Requires <span>requests</span>. Just <span>from auth import login</span> and you're live.</div>
+            <div class="ld-footer">
+              <span class="ld-badge">pip install requests</span>
+              <span class="ld-badge">Cross-platform</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PRICING ═══ -->
+    <section class="hm-section bg-highlight">
+      <div class="hm-section-inner">
+        <div class="section-tag">Pricing</div>
+        <h2>Free. Always.</h2>
+        <div class="section-sub">No hidden costs. You only pay Google if you need more Sheets quota.</div>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <div class="pc-badge">Free</div>
+            <div class="pc-price">$0</div>
+            <div class="pc-period">forever</div>
+            <ul class="pc-features">
+              <li>✓ Unlimited users per Sheet</li>
+              <li>✓ C++, C#, Python SDKs</li>
+              <li>✓ HWID binding</li>
+              <li>✓ Web admin panel</li>
+              <li>✓ User create / delete / reset</li>
+            </ul>
+            <a class="btn-pricing" onclick="showPage('app');switchTab('dashboard')">Get Started</a>
+          </div>
+          <div class="pricing-card pc-highlight">
+            <div class="pc-badge">Popular</div>
+            <div class="pc-price">Free</div>
+            <div class="pc-period">open source</div>
+            <ul class="pc-features">
+              <li>✓ Everything in Free</li>
+              <li>✓ Source code included</li>
+              <li>✓ Modify & customize</li>
+              <li>✓ No attribution required</li>
+              <li>✓ Self-hosted backend</li>
+            </ul>
+            <a class="btn-pricing" onclick="showPage('app');switchTab('dashboard')">Start Now</a>
+          </div>
+          <div class="pricing-card">
+            <div class="pc-badge">Enterprise</div>
+            <div class="pc-price">$0</div>
+            <div class="pc-period">custom</div>
+            <ul class="pc-features">
+              <li>✓ Everything in Open Source</li>
+              <li>✓ Custom integrations</li>
+              <li>✓ Dedicated support</li>
+              <li>✓ Custom Sheet structure</li>
+              <li>✓ Priority updates</li>
+            </ul>
+            <a class="btn-pricing" onclick="scrollToSection('homeDonate')">Contact</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ DONATE SECTION ═══ -->
+    <section class="hm-section" id="homeDonate">
+      <div class="hm-section-inner">
+        <div class="section-tag">Donate</div>
+        <h2>Support Alone Auth</h2>
+        <div class="section-sub">Your contributions keep this project alive.</div>
+        <div class="donate-grid">
+          <div class="donate-item">
+            <div class="di-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.4)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="di-body">
+              <div class="label">Binance ID</div>
+              <div class="addr" id="dBinance"></div>
+            </div>
+            <span class="copy-d" onclick="copyText('dBinance')">📋 Copy</span>
+          </div>
+          <div class="donate-item">
+            <div class="di-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.4)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div class="di-body">
+              <div class="label">LTC (Litecoin)</div>
+              <div class="addr" id="dLtc"></div>
+            </div>
+            <span class="copy-d" onclick="copyText('dLtc')">📋 Copy</span>
+          </div>
+          <div class="donate-item">
+            <div class="di-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,100,.4)" stroke-width="2"><path d="M12 2C9.5 2 7 4 7 7c0 3 2 5 5 8 3-3 5-5 5-8 0-3-2.5-5-5-5z"/><path d="M12 17v5"/><path d="M9 22h6"/></svg>
+            </div>
+            <div class="di-body">
+              <div class="label">BTC (Bitcoin)</div>
+              <div class="addr" id="dBtc"></div>
+            </div>
+            <span class="copy-d" onclick="copyText('dBtc')">📋 Copy</span>
+          </div>
+          <div class="donate-footer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.4"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            <span>Discord: <span id="dDiscord"></span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FAQ ═══ -->
+    <section class="hm-section">
+      <div class="hm-section-inner">
+        <div class="section-tag">FAQ</div>
+        <h2>Got questions?</h2>
+        <div class="section-sub">Everything you need to know about Alone Auth.</div>
+        <div class="faq-list">
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">How fast can I get started? <span class="faq-arrow">▼</span></div>
+            <div class="faq-a">Under 5 minutes. Create a Sheet, paste the ID, download the SDK, call login(). That's it.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">Is it really free? <span class="faq-arrow">▼</span></div>
+            <div class="faq-a">Yes. No subscriptions, no hidden fees. Google Sheets provides the free tier. You only pay Google if you exceed their limits.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">Which languages are supported? <span class="faq-arrow">▼</span></div>
+            <div class="faq-a">C++ (single-header), C# (single-file), Python (module). All three share the same API and backend.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">What is HWID binding? <span class="faq-arrow">▼</span></div>
+            <div class="faq-a">Hardware ID binding locks a user to a specific machine. The client sends volume serial + machine name + MAC address on login.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">Do I need to deploy a server? <span class="faq-arrow">▼</span></div>
+            <div class="faq-a">No. The backend is Google Apps Script — deploy once as a web app and you're done. No VPS, no database, no Docker.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <div class="home-footer">
+      <p>Discord <span id="fDiscord"></span> &nbsp;·&nbsp; <span id="fSiteName"></span> &nbsp;·&nbsp; v<span id="fVersion"></span> &nbsp;·&nbsp; Google Sheets Auth</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+  <div class="top-bar">
+    <div class="left">
+      <div class="home-link" onclick="goHome()">← Home</div>
+      <div class="brand"><b>Alone</b> <span>Auth</span></div>
+    </div>
+    <div class="right">
+      <div class="sid-pill" id="sidDisplay"></div>
+      <button class="btn btn-ghost" onclick="openSettings('configure')">Change</button>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</div>
+    <div class="tab" data-tab="settings" onclick="switchTab('settings')">Settings</div>
+  </div>
+
+  <div class="tab-content active flex" id="tab-dashboard">
+    <div class="dash-actions">
+      <button class="btn btn-pri" onclick="showCreate()">✦ New User</button>
+      <button class="btn btn-ghost" onclick="refresh()">↻ Refresh</button>
+      <span class="user-count" id="userCount"></span>
+      <span class="user-count">v<span id="dashVersion">?</span></span>
+    </div>
+    <div class="table-wrap">
+      <div id="noSidMsg" style="display:none;text-align:center;padding:40px 20px;color:#999;font-size:14px;line-height:1.6">
+        <div style="font-size:40px;margin-bottom:12px;opacity:.3">📋</div>
+        No Sheet ID configured.<br>
+        Go to <span style="color:#8c8;cursor:pointer" onclick="openSettings('configure')">Settings → Configure</span> to paste your Sheet ID.
+      </div>
+      <table>
+        <thead><tr><th>Username</th><th>Password</th><th>HWID</th><th>Created</th><th>HWID On</th><th>Status</th><th></th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-settings">
+    <div class="sub-tab-bar">
+      <div class="sub-tab active" data-sub="configure" onclick="switchSubTab('configure')">Configure</div>
+      <div class="sub-tab" data-sub="examples" onclick="switchSubTab('examples')">Examples</div>
+    </div>
+
+    <div class="sub-content active" id="sub-configure">
+      <div class="settings-section">
+        <h3>Sheet ID</h3>
+        <label>Current Sheet ID</label>
+        <div class="current-sid" id="settingsSidDisplay"></div>
+        <label>Change Sheet ID</label>
+        <input id="settingsSidInput" type="text" placeholder="New Sheet ID">
+        <button class="btn btn-green btn-block" onclick="saveSid()">Save</button>
+        <div class="help-toggle" style="margin-top:16px" onclick="toggleHelp('settingsHelpBox')">▼ How to get Sheet ID</div>
+        <div class="help-box" id="settingsHelpBox">
+          <div class="step"><div class="step-num">1</div><div>Go to <span>sheets.google.com</span> → Create a new Sheet</div></div>
+          <div class="step"><div class="step-num">2</div><div>Name your sheet (e.g. <span>MyDB</span>)</div></div>
+          <div class="step"><div class="step-num">3</div><div>Click <span>Share</span> → <span>Anyone with the link</span> → set to <span>Editor</span></div></div>
+          <div class="step"><div class="step-num">4</div><div>Click <span>File → Share → Publish to web</span> → <span>Publish</span></div></div>
+          <div class="step"><div class="step-num">5</div><div>Copy the ID from URL: <span>https://docs.google.com/spreadsheets/d/<b style="color:#8af">THIS_PART</b>/edit</span></div></div>
+          <div class="step"><div class="step-num">6</div><div>Paste the ID above and click <span>Connect</span></div></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Version Check</h3>
+        <label>Current App Version</label>
+        <div class="current-sid" id="settingsVersionDisplay">—</div>
+        <label>Set New Version Name</label>
+        <div style="display:flex;gap:8px">
+          <input id="settingsVersionInput" type="text" placeholder='e.g. "1.0", "2.0-beta", "build-5"' style="margin-bottom:0;flex:1">
+          <button class="btn btn-green" onclick="setVersion()" style="flex-shrink:0">Update</button>
+        </div>
+        <p style="font-size:12px;color:#666;margin-top:8px">Change this name when you release a new build. Client apps compare their local version against this — if different, they'll prompt users to update.</p>
+      </div>
+    </div>
+
+    <div class="sub-content" id="sub-examples">
+      <div class="settings-section">
+        <h3>C++</h3>
+        <p style="font-size:13px;color:#999;margin-bottom:10px">
+          Drop <span style="color:#aaa;font-family:'SF Mono',monospace">auth.h</span> into your project, <span style="color:#aaa;font-family:'SF Mono',monospace">#include "auth.h"</span>, call <span style="color:#aaa;font-family:'SF Mono',monospace">gk_auth::login()</span>.
+        </p>
+        <button class="btn btn-pri btn-block" onclick="downloadAuth()" style="margin-bottom:12px">⬇ Download auth.h</button>
+        <div class="code-wrap" id="codeCpp">
+          <div class="code-header"><span>main.cpp</span><button class="copy-btn" onclick="copyCode('codeCpp')">📋 Copy</button></div>
+          <pre>#include "auth.h"
+int main() {
+    std::string sid = "<span style="color:#6af">YOUR_SHEET_ID</span>", u, p;
+    std::string app_ver = "1.0";  // ← change on new build
+    std::string sv = gk_auth::checkUpdate(sid);
+    if (!sv.empty() &amp;&amp; sv != app_ver) {
+        std::string m = "Update: \"" + sv + "\" available";
+        MessageBoxA(0, m.c_str(), "Update", MB_OK|MB_ICONINFORMATION);
+    }
+    std::cout &lt;&lt; "User: "; std::getline(std::cin, u);
+    std::cout &lt;&lt; "Pass: "; std::getline(std::cin, p);
+    if (gk_auth::login(sid, u, p)) std::cout &lt;&lt; "GRANTED\n";
+    else                           std::cout &lt;&lt; "FAILED\n";
+}</pre>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>C#</h3>
+        <p style="font-size:13px;color:#999;margin-bottom:10px">
+          Add <span style="color:#aaa;font-family:'SF Mono',monospace">auth.cs</span>, call <span style="color:#aaa;font-family:'SF Mono',monospace">GkAuth.Auth.Login()</span>. Requires <span style="color:#aaa;font-family:'SF Mono',monospace">System.Text.Json</span>.
+        </p>
+        <button class="btn btn-pri btn-block" onclick="downloadCs()" style="margin-bottom:12px">⬇ Download auth.cs</button>
+        <div class="code-wrap" id="codeCs">
+          <div class="code-header"><span>Program.cs</span><button class="copy-btn" onclick="copyCode('codeCs')">📋 Copy</button></div>
+          <pre>using GkAuth;
+var sid = "<span style="color:#6af">YOUR_SHEET_ID</span>";
+var sv = Auth.CheckUpdate(sid);
+if (!string.IsNullOrEmpty(sv) &amp;&amp; sv != Auth.AppVersion)
+    Console.WriteLine("Update: \"" + sv + "\" available");
+Console.Write("User: "); var u = Console.ReadLine();
+Console.Write("Pass: "); var p = Console.ReadLine();
+if (Auth.Login(sid, u, p)) Console.WriteLine("GRANTED");
+else                       Console.WriteLine("DENIED");</pre>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Python</h3>
+        <p style="font-size:13px;color:#999;margin-bottom:10px">
+          Put <span style="color:#aaa;font-family:'SF Mono',monospace">auth.py</span> in your project, <span style="color:#aaa;font-family:'SF Mono',monospace">from auth import login</span>. Requires <span style="color:#aaa;font-family:'SF Mono',monospace">requests</span>.
+        </p>
+        <button class="btn btn-pri btn-block" onclick="downloadPy()" style="margin-bottom:12px">⬇ Download auth.py</button>
+        <div class="code-wrap" id="codePy">
+          <div class="code-header"><span>main.py</span><button class="copy-btn" onclick="copyCode('codePy')">📋 Copy</button></div>
+          <pre>from auth import login, check_update, APP_VERSION
+sid = "<span style="color:#6af">YOUR_SHEET_ID</span>"
+sv = check_update(sid)
+if sv and sv != APP_VERSION:
+    print(f'Update: "{sv}" available')
+u = input("User: ")
+p = input("Pass: ")
+if login(sid, u, p): print("GRANTED")
+else:                print("DENIED")</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal" onclick="if(event.target===this)closeConfirm()">
+  <div class="modal">
+    <div class="m-icon" id="confirmIcon">⚠</div>
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmMsg">This action cannot be undone.</p>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-confirm" id="confirmYes" onclick="confirmAction()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE MODAL -->
+<div class="modal-overlay" id="createModal" onclick="if(event.target===this)closeCreate()">
+  <div class="modal">
+    <div class="m-icon">✦</div>
+    <h3>New User</h3>
+    <p style="margin-bottom:16px">Enter credentials</p>
+    <label>Username</label><input id="cuUser" type="text" placeholder="Username">
+    <label>Password</label><input id="cuPass" type="text" placeholder="Password">
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeCreate()">Cancel</button>
+      <button class="btn btn-pri" id="createBtn" onclick="createUser()">Create</button>
+    </div>
+    <div id="createErr" style="color:#999;font-size:12px;margin-top:12px;text-align:center"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+var SID = localStorage.getItem('sid') || '';
+initGlobals();
+
+// ── Page nav ──
+function scrollToSection(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page, .page-scroll, #app').forEach(function(el){el.classList.remove('show')});
+  var el = document.getElementById(id);
+  if (el) el.classList.add('show');
+  if (id === 'app') {
+    document.getElementById('sidDisplay').textContent = SID || 'No Sheet ID';
+    document.getElementById('settingsSidDisplay').textContent = SID || 'Not configured';
+    document.getElementById('settingsSidInput').value = SID || '';
+    if (SID) {
+      document.getElementById('noSidMsg').style.display = 'none';
+      document.querySelector('#tab-dashboard table').style.display = '';
+      switchTab('dashboard');
+      refresh();
+      fetchVersion();
+    } else {
+      document.getElementById('noSidMsg').style.display = 'block';
+      document.querySelector('#tab-dashboard table').style.display = 'none';
+      switchTab('dashboard');
+    }
+  }
+}
+
+function goHome() {
+  showPage('homeScreen');
+}
+
+function disconnect() {
+  SID = '';
+  localStorage.removeItem('sid');
+  document.getElementById('app').classList.remove('show');
+  showPage('homeScreen');
+}
+
+function startApp() {
+  showPage('app');
+}
+
+// ── Help ──
+function toggleHelp(id) {
+  var box = document.getElementById(id);
+  box.classList.toggle('show');
+}
+
+// ── FAQ ──
+function toggleFaq(el) {
+  el.classList.toggle('open');
+}
+
+// ── Copy ──
+function copyText(id) {
+  var text = document.getElementById(id).textContent.trim();
+  var ta = document.createElement('textarea');
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  document.execCommand('copy'); document.body.removeChild(ta);
+  toast('Copied', 'success');
+}
+
+function copyCode(id) {
+  var pre = document.querySelector('#' + id + ' pre');
+  var text = pre.textContent;
+  var ta = document.createElement('textarea');
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  document.execCommand('copy'); document.body.removeChild(ta);
+  toast('Code copied', 'success');
+}
+
+// ── Download ──
+function downloadAuth() {
+  var content = AUTH_H_CONTENT;
+  var blob = new Blob([content], {type: 'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'auth.h'; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('auth.h downloaded', 'success');
+}
+function downloadCs() {
+  var content = AUTH_CS_CONTENT;
+  var blob = new Blob([content], {type: 'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'auth.cs'; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('auth.cs downloaded', 'success');
+}
+function downloadPy() {
+  var content = AUTH_PY_CONTENT;
+  var blob = new Blob([content], {type: 'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'auth.py'; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('auth.py downloaded', 'success');
+}
+
+// ── Tabs ──
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active')});
+  document.querySelector('.tab[data-tab="'+name+'"]').classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function openSettings(sub) {
+  switchTab('settings');
+  switchSubTab(sub || 'configure');
+}
+
+function switchSubTab(name) {
+  document.querySelectorAll('.sub-tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.sub-content').forEach(function(t){t.classList.remove('active')});
+  document.querySelector('.sub-tab[data-sub="'+name+'"]').classList.add('active');
+  document.getElementById('sub-'+name).classList.add('active');
+}
+
+// ── Settings ──
+function fetchVersion() {
+  jsonp('getVersion','',function(r){
+    if (r.success) {
+      document.getElementById('dashVersion').textContent = r.version;
+      document.getElementById('settingsVersionDisplay').textContent = r.version;
+    }
+  });
+}
+
+function setVersion() {
+  var v = document.getElementById('settingsVersionInput').value.trim();
+  if (!v) { toast('Enter a version number', 'error'); return; }
+  jsonp('setVersion','version='+encodeURIComponent(v),function(r){
+    if (r.success) {
+      toast('Version updated to ' + r.version, 'success');
+      document.getElementById('dashVersion').textContent = r.version;
+      document.getElementById('settingsVersionDisplay').textContent = r.version;
+      document.getElementById('settingsVersionInput').value = '';
+    } else {
+      toast(r.error, 'error');
+    }
+  });
+}
+
+function saveSid() {
+  var v = document.getElementById('settingsSidInput').value.trim();
+  if (!v) { toast('Enter a Sheet ID', 'error'); return; }
+  SID = v;
+  localStorage.setItem('sid', SID);
+  document.getElementById('sidDisplay').textContent = SID;
+  document.getElementById('settingsSidDisplay').textContent = SID;
+  document.getElementById('noSidMsg').style.display = 'none';
+  document.querySelector('#tab-dashboard table').style.display = '';
+  toast('Sheet ID saved', 'success');
+  switchTab('dashboard');
+  refresh();
+}
+
+// ── Toast ──
+function toast(msg, type) {
+  type = type || 'info';
+  var c = document.getElementById('toastContainer');
+  var t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  var icons = {
+    success:'<svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3 4 7-7" stroke="#8c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    error:'<svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#c88" stroke-width="2" stroke-linecap="round"/></svg>',
+    info:'<svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#88a" stroke-width="1.5"/><path d="M8 5v4M8 11v.01" stroke="#88a" stroke-width="1.5" stroke-linecap="round"/></svg>'
+  };
+  t.innerHTML = '<div class="t-icon">'+(icons[type]||icons.info)+'</div><div class="t-text">'+msg+'</div>';
+  c.appendChild(t);
+  setTimeout(function(){t.classList.add('toast-out');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},350)},3500);
+}
+
+// ── Confirm ──
+var _cb = null;
+function showConfirm(icon,title,msg,btn,cb){
+  document.getElementById('confirmIcon').textContent=icon;
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  document.getElementById('confirmYes').textContent=btn;
+  _cb=cb; document.getElementById('confirmModal').classList.add('show');
+}
+function closeConfirm(){document.getElementById('confirmModal').classList.remove('show');_cb=null}
+function confirmAction(){var c=_cb;closeConfirm();if(c)c()}
+
+// ── JSONP ──
+function jsonp(action,extra,cb){
+  var n='jpcb_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
+  var url=API+'?action='+encodeURIComponent(action)+'&sheet_id='+encodeURIComponent(SID)+(extra?'&'+extra:'')+'&callback='+n;
+  var tm=setTimeout(function(){cleanup();cb({success:false,error:'timeout'})},20000);
+  function cleanup(){clearTimeout(tm);delete window[n];var s=document.getElementById('_jp_'+n);if(s)s.parentNode.removeChild(s)}
+  window[n]=function(d){cleanup();cb(d)};
+  var s=document.createElement('script');s.id='_jp_'+n;s.src=url;document.head.appendChild(s)
+}
+
+// ── Table ──
+function skeleton(){
+  var tb=document.getElementById('tbody'),h='';
+  for(var i=0;i<4;i++)h+='<tr class="skel-row"><td><div class="skel"></div></td><td><div class="skel"></div></td><td><div class="skel"></div></td><td><div class="skel"></div></td><td><div class="skel" style="width:60px"></div></td><td><div class="skel" style="width:50px"></div></td><td><div class="skel" style="width:80px"></div></td></tr>';
+  tb.innerHTML=h
+}
+
+function refresh(){
+  skeleton();
+  jsonp('getUsers','',function(r){
+    if(!r.success){document.getElementById('tbody').innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-text">'+r.error+'</div></div></td></tr>';return}
+    render(r.users||[])
+  })
+}
+
+function render(users){
+  var tb=document.getElementById('tbody');
+  document.getElementById('userCount').textContent=users.length+' user'+(users.length!==1?'s':'');
+  if(!users.length){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◈</div><div class="empty-text">No users</div></div></td></tr>';return}
+  var h='';
+  for(var i=0;i<users.length;i++){
+    var u=users[i],hw=u.hwid&&u.hwid!=='';
+    var badge=hw?'<span class="badge badge-active">Active</span>':'<span class="badge badge-pending">No HWID</span>';
+    var c=u.created||'—',hd=u.hwid_date||(hw?'—':'—');
+    h+='<tr style="animation-delay:'+(i*0.04)+'s">';
+    h+='<td style="font-weight:500">'+esc(u.username)+'</td><td>'+esc(u.password)+'</td>';
+    h+='<td style="font-family:\'SF Mono\',monospace;font-size:12px;color:#666">'+(hw?esc(u.hwid):'<span style="color:#1a1a1a">—</span>')+'</td>';
+    h+='<td>'+esc(c)+'</td><td>'+esc(hd)+'</td><td>'+badge+'</td>';
+    h+='<td style="text-align:right"><div style="display:flex;gap:4px;justify-content:flex-end">';
+    h+='<button class="btn btn-ghost btn-xs" onclick="doReset(\''+js(u.username)+'\')">↺</button>';
+    h+='<button class="btn btn-ghost btn-xs" onclick="doDelete(\''+js(u.username)+'\')" style="color:#b77">✕</button>';
+    h+='</div></td></tr>'
+  }
+  tb.innerHTML=h
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function js(s){return String(s).replace(/'/g,"\\'").replace(/"/g,"\\\"")}
+
+// ── Create ──
+function showCreate(){document.getElementById('cuUser').value='';document.getElementById('cuPass').value='';document.getElementById('createErr').innerHTML='';document.getElementById('createBtn').textContent='Create';document.getElementById('createBtn').disabled=false;document.getElementById('createModal').classList.add('show')}
+function closeCreate(){document.getElementById('createModal').classList.remove('show')}
+function createUser(){
+  var u=document.getElementById('cuUser').value.trim(),p=document.getElementById('cuPass').value.trim();
+  if(!u||!p){document.getElementById('createErr').innerHTML='Fill all fields';return}
+  var btn=document.getElementById('createBtn');
+  btn.disabled=true;btn.textContent='⏳ Creating...';
+  jsonp('createUser','username='+encodeURIComponent(u)+'&password='+encodeURIComponent(p),function(r){
+    btn.disabled=false;btn.textContent='Create';
+    if(r.success){toast('User created','success');closeCreate();refresh()}
+    else document.getElementById('createErr').innerHTML=r.error
+  })
+}
+
+// ── Delete & Reset ──
+function doDelete(u){showConfirm('⚠','Delete User','Delete "'+u+'"?','Delete',function(){jsonp('deleteUser','username='+encodeURIComponent(u),function(r){if(r.success){toast('Deleted','success');refresh()}else toast(r.error,'error')})})}
+function doReset(u){showConfirm('↺','Reset HWID','Reset HWID for "'+u+'"?','Reset',function(){jsonp('resetUser','username='+encodeURIComponent(u),function(r){if(r.success){toast('HWID reset','success');refresh()}else toast(r.error,'error')})})}
+
+var AUTH_H_CONTENT = String.raw`#ifndef GK_AUTH_H
+#define GK_AUTH_H
+
+#include <windows.h>
+#include <sddl.h>
+#include <winhttp.h>
+#include <string>
+#include <vector>
+
+#pragma comment(lib, "winhttp.lib")
+
+namespace gk_auth {
+
+const std::string APP_VERSION = "1.0";
+const std::string API_URL =
+  "${API}";
+
+static std::string httpPost(std::string url, const std::string& body) {
+  std::string result;
+  for (int tries = 0; tries < 5; tries++) {
+    URL_COMPONENTS uc = { sizeof(URL_COMPONENTS) };
+    uc.dwSchemeLength = uc.dwHostNameLength = uc.dwUrlPathLength = (DWORD)-1;
+    WinHttpCrackUrl(std::wstring(url.begin(), url.end()).c_str(), 0, 0, &uc);
+    auto host = std::wstring(uc.lpszHostName, uc.dwHostNameLength);
+    auto path = std::wstring(uc.lpszUrlPath, uc.dwUrlPathLength);
+    bool secure = (uc.nScheme == INTERNET_SCHEME_HTTPS);
+    HINTERNET ses = WinHttpOpen(L"gk_auth/${VERSION}",
+      WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, nullptr, nullptr, 0);
+    if (!ses) break;
+    HINTERNET con = WinHttpConnect(ses, host.c_str(),
+      secure ? INTERNET_DEFAULT_HTTPS_PORT : INTERNET_DEFAULT_HTTP_PORT, 0);
+    if (!con) { WinHttpCloseHandle(ses); break; }
+    HINTERNET req = WinHttpOpenRequest(con, L"POST", path.c_str(),
+      nullptr, nullptr, nullptr, secure ? WINHTTP_FLAG_SECURE : 0);
+    if (!req) { WinHttpCloseHandle(con); WinHttpCloseHandle(ses); break; }
+    std::wstring hdrs = L"Content-Type: application/json\r\n";
+    WinHttpSendRequest(req, hdrs.c_str(), (DWORD)hdrs.length(),
+      (LPVOID)body.c_str(), (DWORD)body.length(), (DWORD)body.length(), 0);
+    if (WinHttpReceiveResponse(req, nullptr)) {
+      DWORD code = 0, sz = sizeof(code);
+      WinHttpQueryHeaders(req, WINHTTP_QUERY_STATUS_CODE |
+        WINHTTP_QUERY_FLAG_NUMBER, nullptr, &code, &sz, nullptr);
+      if (code >= 300 && code < 400) {
+        wchar_t loc[512] = {0}; DWORD ls = sizeof(loc);
+        if (WinHttpQueryHeaders(req, WINHTTP_QUERY_LOCATION,
+          nullptr, loc, &ls, nullptr)) {
+          url = std::string(loc, loc + wcslen(loc));
+          WinHttpCloseHandle(req); WinHttpCloseHandle(con);
+          WinHttpCloseHandle(ses); continue;
+        }
+      }
+      DWORD avail = 0;
+      std::vector<char> buf;
+      do {
+        avail = 0;
+        if (!WinHttpQueryDataAvailable(req, &avail)) break;
+        if (avail == 0) break;
+        buf.resize(avail + 1);
+        DWORD read = 0;
+        if (!WinHttpReadData(req, buf.data(), avail, &read)) break;
+        buf[read] = 0;
+        result.append(buf.data());
+      } while (avail > 0);
+    }
+    WinHttpCloseHandle(req); WinHttpCloseHandle(con); WinHttpCloseHandle(ses);
+    break;
+  }
+  return result;
+}
+
+static std::string jsonStr(const std::string& json, const std::string& key) {
+  auto q = "\"" + key + "\":\"";
+  auto p = json.find(q);
+  if (p == std::string::npos) return "";
+  auto s = p + q.length();
+  auto e = json.find("\"", s);
+  return (e == std::string::npos) ? "" : json.substr(s, e - s);
+}
+
+static bool jsonBool(const std::string& json, const std::string& key) {
+  return json.find("\"" + key + "\":true") != std::string::npos;
+}
+
+// Returns server version string, empty on failure
+static std::string checkUpdate(const std::string& sheet_id) {
+  std::string body = R"({"sheet_id":")" + sheet_id + R"(","action":"getVersion"})";
+  auto resp = httpPost(API_URL, body);
+  return jsonStr(resp, "version");
+}
+
+static std::string getHWID() {
+  HANDLE hToken = nullptr;
+  if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+    return "UNKNOWN";
+  DWORD len = 0;
+  GetTokenInformation(hToken, TokenUser, nullptr, 0, &len);
+  if (!len) { CloseHandle(hToken); return "UNKNOWN"; }
+  auto buf = std::vector<char>(len);
+  TOKEN_USER* tu = reinterpret_cast<TOKEN_USER*>(buf.data());
+  if (!GetTokenInformation(hToken, TokenUser, tu, len, &len)) {
+    CloseHandle(hToken); return "UNKNOWN";
+  }
+  CloseHandle(hToken);
+  LPWSTR sidStr = nullptr;
+  if (!ConvertSidToStringSidW(tu->User.Sid, &sidStr)) return "UNKNOWN";
+  std::wstring ws(sidStr);
+  LocalFree(sidStr);
+  return std::string(ws.begin(), ws.end());
+}
+
+bool login(const std::string& sheet_id,
+           const std::string& username,
+           const std::string& password) {
+  std::string body = R"({"sheet_id":")" + sheet_id
+                   + R"(","action":"login","username":")" + username
+                   + R"(","password":")" + password + R"("})";
+  auto resp = httpPost(API_URL, body);
+  if (!jsonBool(resp, "success")) return false;
+  auto stored  = jsonStr(resp, "stored_hwid");
+  if (jsonBool(resp, "hwid_required") || stored.empty()) {
+    auto local = getHWID();
+    body = R"({"sheet_id":")" + sheet_id
+         + R"(","action":"register","username":")" + username
+         + R"(","password":")" + password
+         + R"(","hwid":")" + local + R"("})";
+    resp = httpPost(API_URL, body);
+    return jsonBool(resp, "success");
+  }
+  return getHWID() == stored;
+}
+
+} // namespace gk_auth
+#endif // GK_AUTH_H`;
+
+var AUTH_CS_CONTENT = String.raw`using System;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Security.Principal;
+
+namespace GkAuth
+{
+    public static class Auth
+    {
+        public const string AppVersion = "1.0";
+        const string ApiUrl = "${API}";
+
+        public static string CheckUpdate(string sheetId)
+        {
+            using var http = new HttpClient();
+            var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "getVersion" });
+            var resp = http.PostAsync(ApiUrl, new StringContent(body, Encoding.UTF8, "application/json")).Result;
+            var json = JsonDocument.Parse(resp.Content.ReadAsStringAsync().Result).RootElement;
+            if (json.TryGetProperty("version", out var v))
+                return v.GetString();
+            return "";
+        }
+
+        public static bool Login(string sheetId, string username, string password)
+        {
+            using var http = new HttpClient();
+            var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "login", username, password });
+            var resp = http.PostAsync(ApiUrl, new StringContent(body, Encoding.UTF8, "application/json")).Result;
+
+            var json = JsonDocument.Parse(resp.Content.ReadAsStringAsync().Result).RootElement;
+            if (!json.GetProperty("success").GetBoolean()) return false;
+
+            var stored = json.TryGetProperty("stored_hwid", out var s) ? s.GetString() : "";
+            var hwidReq = json.TryGetProperty("hwid_required", out var hr) && hr.GetBoolean();
+
+            if (hwidReq || string.IsNullOrEmpty(stored))
+            {
+                var local = GetHwid();
+                body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "register", username, password, hwid = local });
+                resp = http.PostAsync(ApiUrl, new StringContent(body, Encoding.UTF8, "application/json")).Result;
+                json = JsonDocument.Parse(resp.Content.ReadAsStringAsync().Result).RootElement;
+                return json.GetProperty("success").GetBoolean();
+            }
+
+            return GetHwid() == stored;
+        }
+
+        static string GetHwid()
+        {
+            return WindowsIdentity.GetCurrent().User.Value;
+        }
+    }
+}`;
+
+var AUTH_PY_CONTENT = String.raw`import requests
+import subprocess
+import json as _json
+
+API_URL = "${API}"
+APP_VERSION = "1.0"
+
+
+def check_update(sheet_id):
+    body = _json.dumps({"sheet_id": sheet_id, "action": "getVersion"})
+    resp = requests.post(API_URL, data=body, headers={"Content-Type": "application/json"})
+    data = resp.json()
+    return data.get("version", "")
+
+
+def _get_hwid():
+    try:
+        r = subprocess.run(["whoami", "/user"], capture_output=True, text=True)
+        for line in r.stdout.splitlines():
+            for part in line.strip().split():
+                if part.startswith("S-"):
+                    return part
+    except:
+        pass
+    return "UNKNOWN"
+
+
+def login(sheet_id, username, password):
+    body = _json.dumps({"sheet_id": sheet_id, "action": "login", "username": username, "password": password})
+    resp = requests.post(API_URL, data=body, headers={"Content-Type": "application/json"})
+    data = resp.json()
+
+    if not data.get("success"):
+        return False
+
+    stored = data.get("stored_hwid", "")
+
+    if data.get("hwid_required") or not stored:
+        local = _get_hwid()
+        body = _json.dumps({"sheet_id": sheet_id, "action": "register", "username": username, "password": password, "hwid": local})
+        resp = requests.post(API_URL, data=body, headers={"Content-Type": "application/json"})
+        data = resp.json()
+        return data.get("success", False)
+
+    local = _get_hwid()
+    return stored == local`;
+</script>
+</body>
+</html>
