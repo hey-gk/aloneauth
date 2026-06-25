@@ -3,7 +3,7 @@
 <head>
 <script>
 var VERSION='3.4.0';
-var SITE={name:"Alone Auth",tag:"Auth",tagline:"Authentication for everyone!",desc:"Google Sheets powered license validation ecosystem. Your Sheet ID is your database. No backend, no server. C++, C#, Python — drop in your single-token authorization checks natively."};
+var SITE={name:"Alone Auth",tag:"Auth",tagline:"Authentication for everyone.",desc:"Google Sheets powered license validation ecosystem. Your Sheet ID is your database. No backend, no server. C++, C#, Python — drop in your single-token authorization checks natively."};
 var API='https://script.google.com/macros/s/AKfycbwI6YRias6pDMJ97-oR10GmrADBa3t8OhsG-UtY6Ea5r3J1RnL2g766-JquNRvwytLq9g/exec';
 var DONATE={binance:'1013131867',bkash:'+8801310844515',nogod:'+8801310844515',discord:'hey_gk'};
 function g(n,v){var e=document.getElementById(n);if(e)e.textContent=v}
@@ -779,7 +779,7 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
       <div class="hero-inner">
         <div class="hero-left">
           <div class="tag">⚡ Pure License Engine</div>
-          <h1><span class="grad">Authentication that's made for everyone!</span></h1>
+          <h1><span class="grad">Authentication that's made for everyone.</span></h1>
           <p id="heroDesc"></p>
           <div class="cta-row">
             <a class="pri" onclick="showPage('app');switchTab('dashboard')">
@@ -1037,6 +1037,9 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
     <div class="dash-actions pasa-pasi-row" style="align-items:center;">
       <button class="btn btn-pri" onclick="showCreate()">✦ Add License</button>
       <button class="btn btn-ghost" onclick="refresh()">↻ Refresh</button>
+      
+      <button class="btn btn-ghost" onclick="doResetAll()">↺ Reset All</button>
+      <button class="btn btn-cancel" onclick="doDeleteAll()">⚠ Delete All</button>
       
       <input id="searchTable" type="text" placeholder="Search licenses..." onkeyup="filterTable()" style="padding:7px 12px; background:#050505; border:1px solid #1a1a1a; border-radius:6px; color:#e0e0e0; font-size:12px; outline:none; margin-left:auto; transition: 0.3s; width: 220px;">
       
@@ -1592,6 +1595,24 @@ function createUser(){
 
 function doDelete(k){showConfirm('⚠','Delete License','Are you sure you want to delete "' + k + '"?','Delete',function(){jsonp('deleteUser','username='+encodeURIComponent(k),function(r){if(r.success){toast('License deleted','success');refresh()}else toast(r.error,'error')})})}
 function doReset(k){showConfirm('↺','Reset Bind','Are you sure you want to reset the hardware bind for "' + k + '"?','Reset',function(){jsonp('resetUser','username='+encodeURIComponent(k),function(r){if(r.success){toast('Bind reset','success');refresh()}else toast(r.error,'error')})})}
+
+function doDeleteAll(){
+  showConfirm('⚠', 'Delete All Licenses', 'Are you sure you want to delete ALL licenses? This cannot be undone!', 'Delete All', function() {
+    jsonp('deleteAll', '', function(r){
+      if(r.success) { toast('All licenses successfully deleted', 'success'); refresh(); }
+      else { toast(r.error, 'error'); }
+    });
+  });
+}
+
+function doResetAll(){
+  showConfirm('↺', 'Reset All Binds', 'Are you sure you want to release the hardware locks for ALL licenses?', 'Reset All', function() {
+    jsonp('resetAll', '', function(r){
+      if(r.success) { toast('All hardware locks have been reset', 'success'); refresh(); }
+      else { toast(r.error, 'error'); }
+    });
+  });
+}
 
 function downloadAuth() { var blob = new Blob([AUTH_H_CONTENT.replace(/\$\{API\}/g, API)], {type:'text/plain'}); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'auth.h'; document.body.appendChild(a); a.click(); toast('Header payload extracted.', 'success'); }
 function downloadCs() { var blob = new Blob([AUTH_CS_CONTENT.replace(/\$\{API\}/g, API)], {type:'text/plain'}); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'auth.cs'; document.body.appendChild(a); a.click(); toast('C# module asset localized.', 'success'); }
