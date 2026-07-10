@@ -633,6 +633,30 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
     .skel-row td{padding:14px 16px}
     .skel-row .skel{height:10px}
 
+    /* ── Floating Action Button (Info Panel) ── */
+    .fab-info {
+      position: fixed; bottom: 30px; right: 30px;
+      width: 54px; height: 54px; border-radius: 50%;
+      background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(140,255,140,0.25);
+      display: flex; justify-content: center; align-items: center;
+      cursor: pointer; z-index: 90; transition: var(--trans-smooth);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 15px rgba(140,255,140,0.05);
+      animation: fabFloat 4s ease-in-out infinite;
+    }
+    .fab-info:hover {
+      background: rgba(20, 20, 20, 0.95); border-color: rgba(140,255,140,0.6);
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 0 25px rgba(140,255,140,0.2), inset 0 0 20px rgba(140,255,140,0.1);
+      animation: none;
+    }
+    .fab-info svg {
+      width: 24px; height: 24px; stroke: #8f8;
+      filter: drop-shadow(0 0 4px rgba(140,255,140,0.4)); transition: var(--trans-smooth);
+    }
+    .fab-info:hover svg { transform: rotate(15deg) scale(1.1); filter: drop-shadow(0 0 8px rgba(140,255,140,0.8)); }
+    @keyframes fabFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
     /* ── Mobile Strict Fixes ── */
     @media(max-width:1100px){
       .pasa-pasi-grid-layout { grid-template-columns: 1fr; }
@@ -723,6 +747,9 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
       .toast{font-size:11px;padding:8px 12px;min-width:auto;max-width:90%}
       .skel-row td{padding:10px 10px}
       .skel{height:8px}
+
+      .fab-info { bottom: 20px; right: 20px; width: 44px; height: 44px; }
+      .fab-info svg { width: 20px; height: 20px; }
     }
     
     @media(max-width:480px){
@@ -823,7 +850,7 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
         <div class="section-sub">Zero local dependencies. Direct multi-tenant pathways.</div>
         <div class="stats-grid">
           <div class="stat-card g-card"><div class="num">100%</div><div class="lbl">Pure License Architecture</div></div>
-          <div class="stat-card g-card"><div class="num">Dual</div><div class="lbl">HWID/UUID Matrix</div></div>
+          <div class="stat-card g-card"><div class="num">Global</div><div class="lbl">HWID & Unbound Matrix</div></div>
           <div class="stat-card g-card"><div class="num">$0</div><div class="lbl">Infrastructure Hosting Fees</div></div>
         </div>
       </div>
@@ -847,7 +874,7 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
               <svg viewBox="0 0 24 24" fill="none" stroke="rgba(140,255,140,.4)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
             </div>
             <h3>Strategy Swapping</h3>
-            <p>Dynamically switch hardware protection bindings between OS token flags and mainboard registries at runtime.</p>
+            <p>Dynamically switch hardware protection bindings between single OS Tokens or unbound global access matrix.</p>
           </div>
           <div class="feature-card g-card">
             <div class="fc-icon">
@@ -898,7 +925,7 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
             <ul class="pc-features">
               <li>✓ Unlimited users per Sheet</li>
               <li>✓ C++, C#, Python SDKs</li>
-              <li>✓ HWID/UUID selectable binding</li>
+              <li>✓ HWID or No Bind Selection</li>
               <li>✓ Web admin panel</li>
               <li>✓ Auto-login checking</li>
             </ul>
@@ -996,8 +1023,8 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
             <div class="faq-a">C++ (single-header), C# (single-file), Python (module). All three share the same API and backend.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">What is HWID binding? <span class="faq-arrow">▼</span></div>
-            <div class="faq-a">Hardware ID binding locks a user to a specific machine. The client sends volume serial + machine name + MAC address on login.</div>
+            <div class="faq-q">What happens if I select No Bind Mode? <span class="faq-arrow">▼</span></div>
+            <div class="faq-a">If a license is set to No Bind mode, the security sub-engine bypasses device locking. The key can be shared and used globally across any workstation simultaneously.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
             <div class="faq-q">Do I need to deploy a server? <span class="faq-arrow">▼</span></div>
@@ -1052,10 +1079,16 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
         Go to <span style="color:#8f8;cursor:pointer; font-weight: 600; text-shadow: 0 0 5px rgba(140,255,140,0.2);" onclick="openSettings('configure')">Settings → Configure</span> to link Database.
       </div>
       <table>
-        <thead><tr><th>License Key</th><th>Notes</th><th>Bind Type</th><th>HWID / UUID</th><th>Bind Date</th><th>Created</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>License Key</th><th>Notes</th><th>Bind Type</th><th>HWID Signature</th><th>Bind Date</th><th>Created</th><th>Status</th><th></th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
     </div>
+
+    <!-- Floating Info Button added here -->
+    <div class="fab-info" onclick="showInfoModal()" title="Security Matrix Guide">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+    </div>
+
   </div>
 
   <div class="tab-content" id="tab-settings">
@@ -1123,7 +1156,7 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
         <span class="c-typ">std::cout</span> &lt;&lt; <span class="c-str">"Update available: "</span> &lt;&lt; sv &lt;&lt; <span class="c-str">"\n"</span>;
     }
     
-    <span class="c-com">// System checks DB for local HWID/UUID lock match</span>
+    <span class="c-com">// System checks DB for local HWID lock match</span>
     <span class="c-key">if</span> (gk_auth::<span class="c-fun">hwidLogin</span>(sid)) {
         <span class="c-typ">std::cout</span> &lt;&lt; <span class="c-str">"AUTO LOGIN SUCCESSFUL.\n"</span>;
         <span class="c-key">return</span> <span class="c-num">0</span>;
@@ -1134,7 +1167,7 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
     <span class="c-fun">std::getline</span>(<span class="c-typ">std::cin</span>, key);
     
     <span class="c-key">if</span> (gk_auth::<span class="c-fun">licenseLogin</span>(sid, key)) {
-        <span class="c-typ">std::cout</span> &lt;&lt; <span class="c-str">"ACCESS GRANTED AND DEVICE LOCKED.\n"</span>;
+        <span class="c-typ">std::cout</span> &lt;&lt; <span class="c-str">"ACCESS GRANTED.\n"</span>;
     } <span class="c-key">else</span> {
         <span class="c-typ">std::cout</span> &lt;&lt; <span class="c-str">"VALIDATION FAILURE.\n"</span>;
     }
@@ -1159,7 +1192,7 @@ function initGlobals(){g('heroDesc',SITE.desc);g('dBinance',DONATE.binance);g('d
 <span class="c-key">if</span> (!<span class="c-typ">string</span>.<span class="c-fun">IsNullOrEmpty</span>(sv) &amp;&amp; sv != Auth.AppVersion)
     Console.<span class="c-fun">WriteLine</span>(<span class="c-str">"Update: "</span> + sv + <span class="c-str">" available"</span>);
 
-<span class="c-com">// System checks DB for local HWID/UUID lock match</span>
+<span class="c-com">// System checks DB for local HWID lock match</span>
 <span class="c-key">if</span> (Auth.<span class="c-fun">HwidLogin</span>(sid)) {
     Console.<span class="c-fun">WriteLine</span>(<span class="c-str">"AUTO ACCESS GRANTED"</span>);
     <span class="c-key">return</span>;
@@ -1190,7 +1223,7 @@ sv = <span class="c-fun">check_update</span>(sid)
 <span class="c-key">if</span> sv <span class="c-key">and</span> sv != APP_VERSION:
     <span class="c-fun">print</span>(<span class="c-str">f'Update: "{sv}" available'</span>)
 
-<span class="c-com"># System checks DB for local HWID/UUID lock match</span>
+<span class="c-com"># System checks DB for local HWID lock match</span>
 <span class="c-key">if</span> <span class="c-fun">hwid_login</span>(sid):
     <span class="c-fun">print</span>(<span class="c-str">"AUTO LOGGED IN VIA DB ENTRY"</span>)
     sys.<span class="c-fun">exit</span>(<span class="c-num">0</span>)
@@ -1198,9 +1231,9 @@ sv = <span class="c-fun">check_update</span>(sid)
 token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Key: "</span>)
 
 <span class="c-key">if</span> <span class="c-fun">license_login</span>(sid, token):
-    <span class="c-fun">print</span>(<span class="c-str">"LICENSE VERIFIED AND LOCKED"</span>)
+    <span class="c-fun">print</span>(<span class="c-str">"LICENSE VERIFIED AND SESSION UNLOCKED"</span>)
 <span class="c-key">else</span>:
-    <span class="c-fun">print</span>(<span class="c-str">"REJECTED: CONFLICT FOUND"</span>)</pre>
+    <span class="c-fun">print</span>(<span class="c-str">"REJECTED: VALIDATION FAILED"</span>)</pre>
           </div>
         </div>
 
@@ -1230,9 +1263,9 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
     <label>BIND TYPE</label>
     <div class="bind-type-toggle">
       <input type="radio" id="btHwid" name="cuBindType" value="hwid" checked>
-      <label for="btHwid">HWID (OS Token)</label>
-      <input type="radio" id="btUuid" name="cuBindType" value="uuid">
-      <label for="btUuid">UUID (Motherboard)</label>
+      <label for="btHwid">HWID Lock (Single PC)</label>
+      <input type="radio" id="btNone" name="cuBindType" value="none">
+      <label for="btNone">No Bind (Global)</label>
     </div>
 
     <label>LICENSE KEY</label>
@@ -1246,6 +1279,35 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
       <button class="btn btn-pri" id="createBtn" onclick="createUser()">Create</button>
     </div>
     <div id="createErr" style="color:#ff6b6b;font-size:11px;margin-top:10px;text-align:center"></div>
+  </div>
+</div>
+
+<!-- INFO POPUP MODAL ADDED HERE -->
+<div class="modal-overlay" id="infoModal" onclick="if(event.target===this)closeInfoModal()">
+  <div class="modal" style="width:420px;">
+    <div class="m-icon" style="color:#8af; animation: pulseSpotlight 2s infinite alternate;">ℹ</div>
+    <h3 style="color:#fff; font-size:18px; letter-spacing:1px; margin-bottom:4px;">Security Matrix</h3>
+    <p style="margin-bottom:24px; color:#888;">Authentication binding strategies explained.</p>
+    
+    <div style="background:rgba(255,255,255,0.02); border:1px solid #1a1a1a; padding:18px; border-radius:12px; margin-bottom:14px; text-align:left; transition:var(--trans-smooth);" onmouseover="this.style.borderColor='rgba(140,255,140,0.4)'; this.style.background='rgba(140,255,140,0.03)';" onmouseout="this.style.borderColor='#1a1a1a'; this.style.background='rgba(255,255,255,0.02)';">
+      <h4 style="color:#8f8; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        HWID Lock (Hardware ID)
+      </h4>
+      <p style="font-size:12px; color:#aaa; line-height:1.6;">Locks the license exclusively to the user's operating system signature upon their first login. This ensures the key cannot be shared or used on another machine.</p>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02); border:1px solid #1a1a1a; padding:18px; border-radius:12px; margin-bottom:24px; text-align:left; transition:var(--trans-smooth);" onmouseover="this.style.borderColor='rgba(100,200,255,0.4)'; this.style.background='rgba(100,200,255,0.03)';" onmouseout="this.style.borderColor='#1a1a1a'; this.style.background='rgba(255,255,255,0.02)';">
+      <h4 style="color:#8af; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        No Bind (Global Key)
+      </h4>
+      <p style="font-size:12px; color:#aaa; line-height:1.6;">Bypasses all hardware restrictions. The license acts as a universal token that can be freely authenticated from any workstation globally.</p>
+    </div>
+
+    <div class="btn-row pasa-pasi-row">
+      <button class="btn btn-ghost" style="width:100%; border-color:#333;" onclick="closeInfoModal()">Close Guide</button>
+    </div>
   </div>
 </div>
 
@@ -1383,6 +1445,10 @@ function goHome() { showPage('homeScreen'); }
 function toggleHelp(id) { document.getElementById(id).classList.toggle('show'); }
 function toggleFaq(el) { el.classList.toggle('open'); }
 
+/* NEW: Info Modal Functions */
+function showInfoModal() { document.getElementById('infoModal').classList.add('show'); }
+function closeInfoModal() { document.getElementById('infoModal').classList.remove('show'); }
+
 function copyTextDirect(text) {
   var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
   document.execCommand('copy'); document.body.removeChild(ta);
@@ -1505,12 +1571,19 @@ function render(licenses){
   var h='';
   for(var i=0;i<licenses.length;i++){
     var u=licenses[i];
-    var isUuidMode = u.bind_type === 'uuid';
-    var activeSig = isUuidMode ? (u.uuid || '') : (u.hwid || '');
-    var bound = activeSig !== '';
-    var badge = bound ? '<span class="badge badge-active">Locked</span>' : '<span class="badge badge-pending">Pending</span>';
-    var hwSelected = !isUuidMode ? 'selected' : '';
-    var uuSelected = isUuidMode ? 'selected' : '';
+    var isNoneMode = u.bind_type === 'none';
+    var activeSig = u.hwid || '';
+    var bound = isNoneMode ? true : (activeSig !== '');
+    
+    var badge = '';
+    if(isNoneMode) {
+       badge = '<span class="badge badge-active" style="background:rgba(100,200,255,0.1);color:#8af;border-color:rgba(100,200,255,0.3)">Global</span>';
+    } else {
+       badge = bound ? '<span class="badge badge-active">Locked</span>' : '<span class="badge badge-pending">Pending</span>';
+    }
+    
+    var hwSelected = !isNoneMode ? 'selected' : '';
+    var noneSelected = isNoneMode ? 'selected' : '';
     
     // ADDED oncontextmenu DIRECTLY ON ROW
     h+='<tr style="animation-delay:'+(i*0.04)+'s" oncontextmenu="showContextMenu(event, \''+js(u.key)+'\')">';
@@ -1518,10 +1591,13 @@ function render(licenses){
     h+='<td>'+esc(u.note)+'</td>';
     h+='<td><select class="table-select" onchange="changeBindType(\''+js(u.key)+'\', this.value)">';
     h+='<option value="hwid" '+hwSelected+'>OS HWID</option>';
-    h+='<option value="uuid" '+uuSelected+'>Base UUID</option>';
+    h+='<option value="none" '+noneSelected+'>No Bind</option>';
     h+='</select></td>';
-    h+='<td style="font-family:\'Fira Code\',monospace;font-size:11px;color:#666;word-break:break-all;min-width:120px;white-space:normal;">'+(bound?esc(activeSig):'<span style="color:#222">—</span>')+'</td>';
-    h+='<td>'+(bound && u.hwid_date ? esc(u.hwid_date) : '<span style="color:#444">—</span>')+'</td>';
+    
+    var sigText = isNoneMode ? '<span style="color:#4a90e2">Unbound (Global)</span>' : (bound ? esc(activeSig) : '<span style="color:#222">—</span>');
+    h+='<td style="font-family:\'Fira Code\',monospace;font-size:11px;color:#666;word-break:break-all;min-width:120px;white-space:normal;">'+sigText+'</td>';
+    
+    h+='<td>'+(bound && u.hwid_date && !isNoneMode ? esc(u.hwid_date) : '<span style="color:#444">—</span>')+'</td>';
     h+='<td>'+esc(u.created || '—')+'</td>';
     h+='<td>'+badge+'</td>';
     
@@ -1550,7 +1626,7 @@ function generateRandomHex(len) {
 
 function showCreate(){
   // AUTO-GENERATE ALONE-XXX-XXX key here
-  var autoKey = 'ALONE-' + generateRandomHex(3) + '-' + generateRandomHex(3);
+  var autoKey = 'ALONE-' + generateRandomHex(4) + '-' + generateRandomHex(4);
   document.getElementById('cuUser').value = autoKey;
   
   document.getElementById('cuPass').value = '';
@@ -1583,8 +1659,8 @@ function createUser(){
       
   var btn=document.getElementById('createBtn'); btn.disabled=true;
   
-  // Fallback jodi somehow input faka theke jay
-  if(u === '' || u === 'ALONE-') u = 'ALONE-' + generateRandomHex(3) + '-' + generateRandomHex(3);
+  // Fallback if input is left empty
+  if(u === '' || u === 'ALONE-') u = 'ALONE-' + generateRandomHex(4) + '-' + generateRandomHex(4);
 
   jsonp('createUser','username='+encodeURIComponent(u)+'&password='+encodeURIComponent(p)+'&bind_type='+b,function(r){
     btn.disabled=false;
@@ -1677,24 +1753,14 @@ static std::string getHWID() {
   std::wstring ws(sidStr); LocalFree(sidStr); return std::string(ws.begin(), ws.end());
 }
 
-static std::string getUUID() {
-  HKEY key; std::string uuid = "ERR_UUID";
-  if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Cryptography", 0, KEY_READ | KEY_WOW64_64KEY, &key) == ERROR_SUCCESS) {
-    char buf[256]; DWORD bytes = sizeof(buf);
-    if (RegQueryValueExA(key, "MachineGuid", NULL, NULL, (LPBYTE)buf, &bytes) == ERROR_SUCCESS) uuid = std::string(buf, bytes - 1);
-    RegCloseKey(key);
-  }
-  return uuid;
-}
-
 inline bool hwidLogin(const std::string& sheet_id) {
-  std::string body = R"({"sheet_id":")" + sheet_id + R"(","action":"hwidLogin","hwid":")" + getHWID() + R"(","uuid":")" + getUUID() + R"("})";
+  std::string body = R"({"sheet_id":")" + sheet_id + R"(","action":"hwidLogin","hwid":")" + getHWID() + R"("})";
   std::string resp = httpPost("${API}", body);
   return resp.find("\"success\":true") != std::string::npos;
 }
 
 inline bool licenseLogin(const std::string& sheet_id, const std::string& license_key) {
-  std::string body = R"({"sheet_id":")" + sheet_id + R"(","action":"licenseLogin","license_key":")" + license_key + R"(","hwid":")" + getHWID() + R"(","uuid":")" + getUUID() + R"("})";
+  std::string body = R"({"sheet_id":")" + sheet_id + R"(","action":"licenseLogin","license_key":")" + license_key + R"(","hwid":")" + getHWID() + R"("})";
   std::string resp = httpPost("${API}", body);
   return resp.find("\"success\":true") != std::string::npos;
 }
@@ -1706,7 +1772,6 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Security.Principal;
-using Microsoft.Win32;
 
 namespace GkAuth {
     public static class Auth {
@@ -1725,7 +1790,7 @@ namespace GkAuth {
         
         public static bool HwidLogin(string sheetId) {
             using var client = new HttpClient();
-            var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "hwidLogin", hwid = GetHwid(), uuid = GetUuid() });
+            var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "hwidLogin", hwid = GetHwid() });
             var response = client.PostAsync(ApiUrl, new StringContent(body, Encoding.UTF8, "application/json")).Result;
             var json = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result).RootElement;
             return json.GetProperty("success").GetBoolean();
@@ -1733,18 +1798,17 @@ namespace GkAuth {
 
         public static bool LicenseLogin(string sheetId, string licenseKey) {
             using var client = new HttpClient();
-            var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "licenseLogin", license_key = licenseKey, hwid = GetHwid(), uuid = GetUuid() });
+            var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "licenseLogin", license_key = licenseKey, hwid = GetHwid() });
             var response = client.PostAsync(ApiUrl, new StringContent(body, Encoding.UTF8, "application/json")).Result;
             var json = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result).RootElement;
             return json.GetProperty("success").GetBoolean();
         }
         
         private static string GetHwid() => WindowsIdentity.GetCurrent().User.Value;
-        private static string GetUuid() => Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography")?.GetValue("MachineGuid")?.ToString() ?? "UNKNOWN";
     }
 }`;
 
-var AUTH_PY_CONTENT = String.raw`import requests, subprocess, json, winreg
+var AUTH_PY_CONTENT = String.raw`import requests, subprocess, json
 API_URL = "${API}"
 APP_VERSION = "1.0"
 
@@ -1756,30 +1820,26 @@ def check_update(sheet_id):
     except: return ""
 
 def _get_identity():
-    hwid, uuid = "UNKNOWN_HWID", "UNKNOWN_UUID"
+    hwid = "UNKNOWN_HWID"
     try:
         r = subprocess.run(["whoami", "/user"], capture_output=True, text=True, creationflags=0x08000000)
         for line in r.stdout.splitlines():
             for part in line.strip().split():
                 if part.startswith("S-"): hwid = part
     except: pass
-    try:
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Cryptography") as key:
-            uuid = winreg.QueryValueEx(key, "MachineGuid")[0]
-    except: pass
-    return hwid, uuid
+    return hwid
 
 def hwid_login(sheet_id):
-    hwid, uuid = _get_identity()
-    body = json.dumps({"sheet_id": sheet_id, "action": "hwidLogin", "hwid": hwid, "uuid": uuid})
+    hwid = _get_identity()
+    body = json.dumps({"sheet_id": sheet_id, "action": "hwidLogin", "hwid": hwid})
     try:
         resp = requests.post(API_URL, data=body, headers={"Content-Type": "application/json"})
         return resp.json().get("success", False)
     except: return False
 
 def license_login(sheet_id, license_key):
-    hwid, uuid = _get_identity()
-    body = json.dumps({"sheet_id": sheet_id, "action": "licenseLogin", "license_key": license_key, "hwid": hwid, "uuid": uuid})
+    hwid = _get_identity()
+    body = json.dumps({"sheet_id": sheet_id, "action": "licenseLogin", "license_key": license_key, "hwid": hwid})
     try:
         resp = requests.post(API_URL, data=body, headers={"Content-Type": "application/json"})
         return resp.json().get("success", False)
