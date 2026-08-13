@@ -4,7 +4,7 @@
 <head>
     <script>
         var VERSION = '3.4.0';
-        var SITE = { name: "Alone Auth", tag: "Auth", tagline: "Authentication for everyone.", desc: "Google Sheets powered license validation ecosystem. Your Sheet ID is your database. No backend, no server. C++, C#, Python — drop in your single-token authorization checks natively." };
+        var SITE = { name: "Alone Auth", tag: "Auth", tagline: "Authentication for everyone.", desc: "Google Sheets powered license validation ecosystem. Your Sheet ID is your database. No backend, no server. C++, C#, Python — drop in your single-token authorization checks natively.", prefix: "ALONE-" };
         var API = 'https://script.google.com/macros/s/AKfycbwI6YRias6pDMJ97-oR10GmrADBa3t8OhsG-UtY6Ea5r3J1RnL2g766-JquNRvwytLq9g/exec';
         var DONATE = { binance: '1013131867', bkash: '+8801310844515', nogod: '+8801310844515', discord: 'hey_gk' };
         function g(n, v) { var e = document.getElementById(n); if (e) e.textContent = v }
@@ -3946,7 +3946,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
             </div>
 
             <label>LICENSE KEY</label>
-            <input id="cuUser" type="text" placeholder="e.g. ALONE-XXX-XXX">
+            <input id="cuUser" type="text" placeholder="e.g. KEY-XXX-XXX">
 
             <label>NOTES</label>
             <input id="cuPass" type="text" placeholder="e.g., Premium Row Entry">
@@ -4329,8 +4329,8 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
         }
 
         function showCreate() {
-            // AUTO-GENERATE ALONE-XXX-XXX key here
-            var autoKey = 'ALONE-' + generateRandomHex(4) + '-' + generateRandomHex(4);
+            // AUTO-GENERATE KEY here
+            var autoKey = SITE.prefix + generateRandomHex(4) + '-' + generateRandomHex(4);
             document.getElementById('cuUser').value = autoKey;
 
             document.getElementById('cuPass').value = '';
@@ -4340,20 +4340,10 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
         }
         function closeCreate() { document.getElementById('createModal').classList.remove('show') }
 
-        // ── ALONE- PREFIX LOCK LOGIC ──
+        // ── FREE CUSTOM INPUT LOGIC ──
         var uInput = document.getElementById('cuUser');
-        uInput.addEventListener('focus', function () {
-            if (this.value.trim() === '') this.value = 'ALONE-';
-        });
         uInput.addEventListener('input', function (e) {
-            let val = this.value.toUpperCase();
-            if (!val.startsWith('ALONE-')) {
-                val = 'ALONE-' + val.replace(/^ALONE-/i, '');
-            }
-            this.value = val;
-        });
-        uInput.addEventListener('blur', function () {
-            if (this.value === 'ALONE-') this.value = '';
+            this.value = this.value.toUpperCase();
         });
 
         function createUser() {
@@ -4364,7 +4354,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
             var btn = document.getElementById('createBtn'); btn.disabled = true;
 
             // Fallback if input is left empty
-            if (u === '' || u === 'ALONE-') u = 'ALONE-' + generateRandomHex(4) + '-' + generateRandomHex(4);
+            if (u === '' || u === SITE.prefix) u = SITE.prefix + generateRandomHex(4) + '-' + generateRandomHex(4);
 
             jsonp('createUser', 'username=' + encodeURIComponent(u) + '&password=' + encodeURIComponent(p) + '&bind_type=' + b, function (r) {
                 btn.disabled = false;
