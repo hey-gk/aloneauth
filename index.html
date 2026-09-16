@@ -3967,7 +3967,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
     <!-- INFO POPUP MODAL ADDED HERE -->
     <div class="modal-overlay" id="infoModal" onclick="if(event.target===this)closeInfoModal()">
         <div class="modal" style="width:420px;">
-            <div class="m-icon" style="color:#4a90e2; animation: pulseSpotlight 2s infinite alternate;">Ã¢â€žÂ¹</div>
+            <div class="m-icon" style="color:#4a90e2; animation: pulseSpotlight 2s infinite alternate;">ℹ</div>
             <h3 style="color:#064e3b; font-size:18px; letter-spacing:1px; margin-bottom:4px;">Security Matrix</h3>
             <p style="margin-bottom:24px; color:#888;">Authentication binding strategies explained.</p>
 
@@ -4012,10 +4012,10 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
 
     <div id="customContextMenu" class="context-menu">
         <button
-            onclick="doReset(contextMenuKey); document.getElementById('customContextMenu').classList.remove('show');">Ã¢â€ Âº
+            onclick="doReset(contextMenuKey); document.getElementById('customContextMenu').classList.remove('show');">↺
             Reset Bind</button>
         <button class="delete-btn"
-            onclick="doDelete(contextMenuKey); document.getElementById('customContextMenu').classList.remove('show');">Ã¢Å¡Â 
+            onclick="doDelete(contextMenuKey); document.getElementById('customContextMenu').classList.remove('show');">⚠
             Delete Key</button>
     </div>
 
@@ -4372,7 +4372,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
                 // ACTION DROPDOWN FOR ROWS (3 DOTS) added back to 8th column
                 h += '<td style="text-align:right; overflow:visible;">';
                 h += '<div class="action-dropdown">';
-                h += '<button class="action-btn" onclick="toggleActionMenu(event, ' + i + ')">▼</button>';
+                h += '<button class="action-btn" onclick="toggleActionMenu(event, ' + i + ')">⋮</button>';
                 h += '<div class="action-menu" id="menu-' + i + '">';
                 h += '<button onclick="doReset(\'' + js(u.key) + '\')">↺ Reset Bind</button>';
                 h += '<button class="delete-btn" onclick="doDelete(\'' + js(u.key) + '\')">⚠ Delete Key</button>';
