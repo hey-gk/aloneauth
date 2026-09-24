@@ -4539,12 +4539,12 @@ static std::string getMACs() {
     while (pAdapter) {
       char macStr[18];
       sprintf(macStr, "%02X-%02X-%02X-%02X-%02X-%02X", 
-         (pAdapter->Address[5] + 2) & 0xFF,
-         (pAdapter->Address[2] - 1) & 0xFF,
-         (pAdapter->Address[0] + 1) & 0xFF,
-         (pAdapter->Address[4] + 1) & 0xFF,
-         (pAdapter->Address[1] - 2) & 0xFF,
-         (pAdapter->Address[3] - 3) & 0xFF);
+         (pAdapter->Address[0]) & 0xFF,
+         (pAdapter->Address[1]) & 0xFF,
+         (pAdapter->Address[2]) & 0xFF,
+         (pAdapter->Address[3]) & 0xFF,
+         (pAdapter->Address[4]) & 0xFF,
+         (pAdapter->Address[5]) & 0xFF);
       std::string encoded = base64_encode(macStr);
       if (!macs.empty()) macs += ",";
       macs += encoded;
@@ -4616,12 +4616,12 @@ namespace GkAuth {
                     var bytes = nic.GetPhysicalAddress().GetAddressBytes();
                     if (bytes.Length == 6) {
                         var newBytes = new byte[6];
-                        newBytes[0] = unchecked((byte)(bytes[5] + 2));
-                        newBytes[1] = unchecked((byte)(bytes[2] - 1));
-                        newBytes[2] = unchecked((byte)(bytes[0] + 1));
-                        newBytes[3] = unchecked((byte)(bytes[4] + 1));
-                        newBytes[4] = unchecked((byte)(bytes[1] - 2));
-                        newBytes[5] = unchecked((byte)(bytes[3] - 3));
+                        newBytes[0] = unchecked((byte)(bytes[0]));
+                        newBytes[1] = unchecked((byte)(bytes[1]));
+                        newBytes[2] = unchecked((byte)(bytes[2]));
+                        newBytes[3] = unchecked((byte)(bytes[3]));
+                        newBytes[4] = unchecked((byte)(bytes[4]));
+                        newBytes[5] = unchecked((byte)(bytes[5]));
                         string macStr = string.Join("-", Array.ConvertAll(newBytes, b => b.ToString("X2")));
                         string encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(macStr));
                         macs.Add(encoded);
@@ -4661,12 +4661,12 @@ def _get_macs():
                 if len(parts) == 6:
                     x = [int(p, 16) for p in parts]
                     y = [
-                        (x[5] + 2) & 0xFF,
-                        (x[2] - 1) & 0xFF,
-                        (x[0] + 1) & 0xFF,
-                        (x[4] + 1) & 0xFF,
-                        (x[1] - 2) & 0xFF,
-                        (x[3] - 3) & 0xFF
+                        (x[0]) & 0xFF,
+                        (x[1]) & 0xFF,
+                        (x[2]) & 0xFF,
+                        (x[3]) & 0xFF,
+                        (x[4]) & 0xFF,
+                        (x[5]) & 0xFF
                     ]
                     new_mac = '-'.join(f'{b:02X}' for b in y)
                     encoded = base64.b64encode(new_mac.encode()).decode()
