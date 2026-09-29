@@ -180,7 +180,7 @@
             display: flex
         }
 
-        /* Ã¢â€â‚¬Ã¢â€â‚¬ Home Orbs Ã¢â€â‚¬Ã¢â€â‚¬ */
+        /* Ã¢â€â‚¬Ã¢â€â‚¬ Home Orbs Ã¢â€â‚¬Ã¢â€â‚¬ */
         .home-orb {
             position: fixed;
             border-radius: 50%;
@@ -2342,7 +2342,7 @@
             color: #bd63c5;
         }
 
-        /* Ã¢â€â‚¬Ã¢â€â‚¬ PREMIUM MODAL STYLES Ã¢â€â‚¬Ã¢â€â‚¬ */
+        /* Ã¢â€â‚¬Ã¢â€â‚¬ PREMIUM MODAL STYLES Ã¢â€â‚¬Ã¢â€â‚¬ */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -2659,7 +2659,7 @@
             height: 12px
         }
 
-        /* Ã¢â€â‚¬Ã¢â€â‚¬ Instructions Ã¢â€â‚¬Ã¢â€â‚¬ */
+        /* Ã¢â€â‚¬Ã¢â€â‚¬ Instructions Ã¢â€â‚¬Ã¢â€â‚¬ */
         .help-toggle {
             display: inline-block;
             font-size: 11px;
@@ -2768,7 +2768,7 @@
             height: 10px
         }
 
-        /* Ã¢â€â‚¬Ã¢â€â‚¬ Floating Action Button (Info Panel) Ã¢â€â‚¬Ã¢â€â‚¬ */
+        /* Ã¢â€â‚¬Ã¢â€â‚¬ Floating Action Button (Info Panel) Ã¢â€â‚¬Ã¢â€â‚¬ */
         .fab-info {
             position: fixed;
             bottom: 30px;
@@ -2823,7 +2823,7 @@
             }
         }
 
-        /* Ã¢â€â‚¬Ã¢â€â‚¬ Mobile Strict Fixes Ã¢â€â‚¬Ã¢â€â‚¬ */
+        /* Ã¢â€â‚¬Ã¢â€â‚¬ Mobile Strict Fixes Ã¢â€â‚¬Ã¢â€â‚¬ */
         @media(max-width:1100px) {
             .pasa-pasi-grid-layout {
                 grid-template-columns: 1fr;
@@ -3497,7 +3497,7 @@
                         <div class="step-card g-card">
                             <div class="step-n">03</div>
                             <h3>Integrate & Go</h3>
-                            <p>Download auth.h, auth.cs, or auth.py. Call hwidLogin() / licenseLogin() and you're live.
+                            <p>Download auth.h, auth.cs, or auth.py. Call login() / registerKey() and you're live.
                             </p>
                         </div>
                     </div>
@@ -3830,7 +3830,7 @@
     }
     
     <span class="c-com">// System checks DB for local HWID lock match</span>
-    <span class="c-key">if</span> (gk_auth::<span class="c-fun">hwidLogin</span>(sid)) {
+    <span class="c-key">if</span> (gk_auth::<span class="c-fun">login</span>(sid)) {
         <span class="c-typ">std::cout</span> &lt;&lt; <span class="c-str">"AUTO LOGIN SUCCESSFUL.\n"</span>;
         <span class="c-key">return</span> <span class="c-num">0</span>;
     }
@@ -3839,7 +3839,7 @@
     <span class="c-typ">std::cout</span> &lt;&lt; <span class="c-str">"Enter License Key: "</span>;
     <span class="c-fun">std::getline</span>(<span class="c-typ">std::cin</span>, key);
     
-    <span class="c-key">if</span> (gk_auth::<span class="c-fun">licenseLogin</span>(sid, key)) {
+    <span class="c-key">if</span> (gk_auth::<span class="c-fun">registerKey</span>(sid, key)) {
         <span class="c-typ">std::cout</span> &lt;&lt; <span class="c-str">"ACCESS GRANTED.\n"</span>;
     } <span class="c-key">else</span> {
         <span class="c-typ">std::cout</span> &lt;&lt; <span class="c-str">"VALIDATION FAILURE.\n"</span>;
@@ -3869,7 +3869,7 @@
     Console.<span class="c-fun">WriteLine</span>(<span class="c-str">"Update: "</span> + sv + <span class="c-str">" available"</span>);
 
 <span class="c-com">// System checks DB for local HWID lock match</span>
-<span class="c-key">if</span> (Auth.<span class="c-fun">HwidLogin</span>(sid)) {
+<span class="c-key">if</span> (Auth.<span class="c-fun">Login</span>(sid)) {
     Console.<span class="c-fun">WriteLine</span>(<span class="c-str">"AUTO ACCESS GRANTED"</span>);
     <span class="c-key">return</span>;
 }
@@ -3877,7 +3877,7 @@
 Console.<span class="c-fun">Write</span>(<span class="c-str">"Enter License Key: "</span>);
 <span class="c-typ">string</span> input = Console.<span class="c-fun">ReadLine</span>();
 
-<span class="c-key">if</span> (Auth.<span class="c-fun">LicenseLogin</span>(sid, input)) {
+<span class="c-key">if</span> (Auth.<span class="c-fun">RegisterKey</span>(sid, input)) {
     Console.<span class="c-fun">WriteLine</span>(<span class="c-str">"SUCCESSFULLY BOUND"</span>);
 } <span class="c-key">else</span> {
     Console.<span class="c-fun">WriteLine</span>(<span class="c-str">"DENIED"</span>);
@@ -3895,7 +3895,7 @@ Console.<span class="c-fun">Write</span>(<span class="c-str">"Enter License Key:
                             <div class="code-header"><span>main.py</span><button class="copy-btn"
                                     onclick="copyCode('codePy')">📋 Copy</button></div>
                             <pre><span class="c-key">import</span> sys
-<span class="c-key">from</span> auth <span class="c-key">import</span> license_login, hwid_login, check_update, APP_VERSION
+<span class="c-key">from</span> auth <span class="c-key">import</span> register_key, login, check_update, APP_VERSION
 
 sid = <span class="c-str">"YOUR_ID"</span>
 sv = <span class="c-fun">check_update</span>(sid)
@@ -3903,13 +3903,13 @@ sv = <span class="c-fun">check_update</span>(sid)
     <span class="c-fun">print</span>(<span class="c-str">f'Update: "{sv}" available'</span>)
 
 <span class="c-com"># System checks DB for local HWID lock match</span>
-<span class="c-key">if</span> <span class="c-fun">hwid_login</span>(sid):
+<span class="c-key">if</span> <span class="c-fun">login</span>(sid):
     <span class="c-fun">print</span>(<span class="c-str">"AUTO LOGGED IN VIA DB ENTRY"</span>)
     sys.<span class="c-fun">exit</span>(<span class="c-num">0</span>)
 
 token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Key: "</span>)
 
-<span class="c-key">if</span> <span class="c-fun">license_login</span>(sid, token):
+<span class="c-key">if</span> <span class="c-fun">register_key</span>(sid, token):
     <span class="c-fun">print</span>(<span class="c-str">"LICENSE VERIFIED AND SESSION UNLOCKED"</span>)
 <span class="c-key">else</span>:
     <span class="c-fun">print</span>(<span class="c-str">"REJECTED: VALIDATION FAILED"</span>)</pre>
@@ -4025,7 +4025,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
         var SID = localStorage.getItem('sid') || '';
         initGlobals();
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ Optimized Mouse Glow Tracker Ã¢â€â‚¬Ã¢â€â‚¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Optimized Mouse Glow Tracker Ã¢â€â‚¬Ã¢â€â‚¬
         const mouseGlow = document.getElementById('mouseGlow');
         let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
         let glowX = mouseX, glowY = mouseY;
@@ -4040,7 +4040,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
         }
         animateGlow();
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ Context Menu (Right Click) Logic Ã¢â€â‚¬Ã¢â€â‚¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Context Menu (Right Click) Logic Ã¢â€â‚¬Ã¢â€â‚¬
         let contextMenuKey = '';
 
         function showContextMenu(e, key) {
@@ -4070,7 +4070,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
             menu.style.top = y + 'px';
         }
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ Dropdown Action Menu Toggles (3 dots) Ã¢â€â‚¬Ã¢â€â‚¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Dropdown Action Menu Toggles (3 dots) Ã¢â€â‚¬Ã¢â€â‚¬
         function toggleActionMenu(event, id) {
             event.stopPropagation();
 
@@ -4106,7 +4106,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
             }
         });
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ Search Filter Ã¢â€â‚¬Ã¢â€â‚¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Search Filter Ã¢â€â‚¬Ã¢â€â‚¬
         function filterTable() {
             var filter = document.getElementById("searchTable").value.toUpperCase();
             var trs = document.getElementById("tbody").getElementsByTagName("tr");
@@ -4116,7 +4116,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
             }
         }
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ Page nav Ã¢â€â‚¬Ã¢â€â‚¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ Page nav Ã¢â€â‚¬Ã¢â€â‚¬
         function scrollToSection(id) {
             var el = document.getElementById(id);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -4384,7 +4384,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
         function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }
         function js(s) { return String(s).replace(/'/g, "\\'").replace(/"/g, "\\\"") }
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ KEY GENERATOR LOGIC Ã¢â€â‚¬Ã¢â€â‚¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ KEY GENERATOR LOGIC Ã¢â€â‚¬Ã¢â€â‚¬
         function generateRandomHex(len) {
             var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             var res = '';
@@ -4404,7 +4404,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
         }
         function closeCreate() { document.getElementById('createModal').classList.remove('show') }
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ FREE CUSTOM INPUT LOGIC Ã¢â€â‚¬Ã¢â€â‚¬
+        // Ã¢â€â‚¬Ã¢â€â‚¬ FREE CUSTOM INPUT LOGIC Ã¢â€â‚¬Ã¢â€â‚¬
         var uInput = document.getElementById('cuUser');
         uInput.addEventListener('input', function (e) {
             this.value = this.value.toUpperCase();
@@ -4459,29 +4459,58 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
 #include <sddl.h>
 #include <string>
 #include <vector>
+#include <sstream>
+#include <algorithm>
 #include <iphlpapi.h>
 #pragma comment(lib, "winhttp.lib")
 #pragma comment(lib, "advapi32.lib")
 #pragma comment(lib, "iphlpapi.lib")
 
 namespace gk_auth {
+
 static std::string httpPost(std::string url, const std::string& body) {
   std::string result;
   URL_COMPONENTS uc = { sizeof(URL_COMPONENTS) };
   uc.dwSchemeLength = uc.dwHostNameLength = uc.dwUrlPathLength = (DWORD)-1;
-  WinHttpCrackUrl(std::wstring(url.begin(), url.end()).c_str(), 0, 0, &uc);
-  auto host = std::wstring(uc.lpszHostName, uc.dwHostNameLength);
-  auto path = std::wstring(uc.lpszUrlPath, uc.dwUrlPathLength);
+  std::wstring wurl(url.begin(), url.end());
+  WinHttpCrackUrl(wurl.c_str(), 0, 0, &uc);
+  std::wstring host(uc.lpszHostName, uc.dwHostNameLength);
+  std::wstring path(uc.lpszUrlPath, uc.dwUrlPathLength);
   HINTERNET ses = WinHttpOpen(L"AloneEngine/3.4", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, nullptr, nullptr, 0);
+  if (!ses) return "";
   HINTERNET con = WinHttpConnect(ses, host.c_str(), INTERNET_DEFAULT_HTTPS_PORT, 0);
+  if (!con) { WinHttpCloseHandle(ses); return ""; }
   HINTERNET req = WinHttpOpenRequest(con, L"POST", path.c_str(), nullptr, nullptr, nullptr, WINHTTP_FLAG_SECURE);
+  if (!req) { WinHttpCloseHandle(con); WinHttpCloseHandle(ses); return ""; }
+  DWORD redirectOption = WINHTTP_OPTION_REDIRECT_POLICY_ALWAYS;
+  WinHttpSetOption(req, WINHTTP_OPTION_REDIRECT_POLICY, &redirectOption, sizeof(redirectOption));
   std::wstring hdrs = L"Content-Type: application/json\r\n";
   if (WinHttpSendRequest(req, hdrs.c_str(), (DWORD)hdrs.length(), (LPVOID)body.c_str(), (DWORD)body.length(), (DWORD)body.length(), 0) && WinHttpReceiveResponse(req, nullptr)) {
     DWORD avail = 0;
     while (WinHttpQueryDataAvailable(req, &avail) && avail > 0) {
       std::vector<char> buf(avail + 1); DWORD read = 0;
-      WinHttpReadData(req, buf.data(), avail, &read);
-      result.append(buf.data(), read);
+      if (WinHttpReadData(req, buf.data(), avail, &read) && read > 0) result.append(buf.data(), read);
+    }
+  }
+  WinHttpCloseHandle(req); WinHttpCloseHandle(con); WinHttpCloseHandle(ses);
+  return result;
+}
+
+static std::string httpGet(const std::wstring& host, const std::wstring& path) {
+  std::string result;
+  HINTERNET ses = WinHttpOpen(L"AloneEngine/3.4", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, nullptr, nullptr, 0);
+  if (!ses) return "";
+  HINTERNET con = WinHttpConnect(ses, host.c_str(), INTERNET_DEFAULT_HTTPS_PORT, 0);
+  if (!con) { WinHttpCloseHandle(ses); return ""; }
+  HINTERNET req = WinHttpOpenRequest(con, L"GET", path.c_str(), nullptr, nullptr, nullptr, WINHTTP_FLAG_SECURE | WINHTTP_FLAG_REFRESH);
+  if (!req) { WinHttpCloseHandle(con); WinHttpCloseHandle(ses); return ""; }
+  DWORD redirectOption = WINHTTP_OPTION_REDIRECT_POLICY_ALWAYS;
+  WinHttpSetOption(req, WINHTTP_OPTION_REDIRECT_POLICY, &redirectOption, sizeof(redirectOption));
+  if (WinHttpSendRequest(req, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0) && WinHttpReceiveResponse(req, nullptr)) {
+    DWORD avail = 0;
+    while (WinHttpQueryDataAvailable(req, &avail) && avail > 0) {
+      std::vector<char> buf(avail + 1); DWORD read = 0;
+      if (WinHttpReadData(req, buf.data(), avail, &read) && read > 0) result.append(buf.data(), read);
     }
   }
   WinHttpCloseHandle(req); WinHttpCloseHandle(con); WinHttpCloseHandle(ses);
@@ -4497,72 +4526,90 @@ static std::string jsonStr(const std::string& json, const std::string& key) {
   return (e == std::string::npos) ? "" : json.substr(s, e - s);
 }
 
-// Returns server version string, empty on failure
 static std::string checkUpdate(const std::string& sheet_id) {
-  std::string body = R"({"sheet_id":")" + sheet_id + R"(","action":"getVersion"})";
-  auto resp = httpPost("${API}", body);
-  return jsonStr(resp, "version");
+  std::wstring host = L"docs.google.com";
+  std::wstring path = L"/spreadsheets/d/" + std::wstring(sheet_id.begin(), sheet_id.end()) + L"/export?format=csv";
+  std::string sheetCsvData = httpGet(host, path);
+  return sheetCsvData.empty() ? "" : jsonStr(sheetCsvData, "version");
 }
 
 static std::string getHWID() {
-  HANDLE token = nullptr; if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token)) return "ERR_HWID";
+  HANDLE token = nullptr;
+  if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token)) return "ERR_HWID";
   DWORD len = 0; GetTokenInformation(token, TokenUser, nullptr, 0, &len);
   std::vector<char> buf(len); TOKEN_USER* tu = reinterpret_cast<TOKEN_USER*>(buf.data());
-  GetTokenInformation(token, TokenUser, tu, len, &len); CloseHandle(token);
+  if (!GetTokenInformation(token, TokenUser, tu, len, &len)) { CloseHandle(token); return "ERR_HWID"; }
+  CloseHandle(token);
   LPWSTR sidStr = nullptr; ConvertSidToStringSidW(tu->User.Sid, &sidStr);
   std::wstring ws(sidStr); LocalFree(sidStr); return std::string(ws.begin(), ws.end());
 }
 
-static std::string base64_encode(const std::string &in) {
-  std::string out;
-  int val = 0, valb = -6;
-  for (unsigned char c : in) {
-    val = (val << 8) + c;
-    valb += 8;
-    while (valb >= 0) {
-      out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val >> valb) & 0x3F]);
-      valb -= 6;
-    }
-  }
-  if (valb > -6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val << 8) >> (valb + 8)) & 0x3F]);
-  while (out.size() % 4) out.push_back('=');
-  return out;
-}
-
-static std::string getMACs() {
-  std::string macs;
-  ULONG outBufLen = 0;
+static std::vector<std::string> getMacList() {
+  std::vector<std::string> macList; ULONG outBufLen = 0;
   GetAdaptersInfo(nullptr, &outBufLen);
+  if (outBufLen == 0) return macList;
   PIP_ADAPTER_INFO pAdapterInfo = (IP_ADAPTER_INFO*)malloc(outBufLen);
-  if (GetAdaptersInfo(pAdapterInfo, &outBufLen) == NO_ERROR) {
+  if (pAdapterInfo && GetAdaptersInfo(pAdapterInfo, &outBufLen) == NO_ERROR) {
     PIP_ADAPTER_INFO pAdapter = pAdapterInfo;
     while (pAdapter) {
-      char macStr[18];
-      sprintf(macStr, "%02X-%02X-%02X-%02X-%02X-%02X", 
-         (pAdapter->Address[0]) & 0xFF,
-         (pAdapter->Address[1]) & 0xFF,
-         (pAdapter->Address[2]) & 0xFF,
-         (pAdapter->Address[3]) & 0xFF,
-         (pAdapter->Address[4]) & 0xFF,
-         (pAdapter->Address[5]) & 0xFF);
-      std::string encoded = base64_encode(macStr);
-      if (!macs.empty()) macs += ",";
-      macs += encoded;
+      if (pAdapter->AddressLength == 6) {
+        char macStr[18];
+        sprintf_s(macStr, sizeof(macStr), "%02X-%02X-%02X-%02X-%02X-%02X",
+          pAdapter->Address[0], pAdapter->Address[1],
+          pAdapter->Address[2], pAdapter->Address[3],
+          pAdapter->Address[4], pAdapter->Address[5]);
+        std::string mac(macStr);
+        if (std::find(macList.begin(), macList.end(), mac) == macList.end()) macList.push_back(mac);
+      }
       pAdapter = pAdapter->Next;
     }
   }
   if (pAdapterInfo) free(pAdapterInfo);
-  return macs;
+  return macList;
 }
 
-inline bool hwidLogin(const std::string& sheet_id) {
-  std::string body = R"({"sheet_id":")" + sheet_id + R"(","action":"hwidLogin","hwid":")" + getHWID() + R"(","macs":")" + getMACs() + R"("})";
-  std::string resp = httpPost("${API}", body);
-  return resp.find("\"success\":true") != std::string::npos;
+static std::string getMac() {
+  auto list = getMacList();
+  if (list.empty()) return "00-00-00-00-00-00";
+  std::string joined = list[0];
+  for (size_t i = 1; i < list.size(); ++i) joined += "," + list[i];
+  return joined;
 }
 
-inline bool licenseLogin(const std::string& sheet_id, const std::string& license_key) {
-  std::string body = R"({"sheet_id":")" + sheet_id + R"(","action":"licenseLogin","license_key":")" + license_key + R"(","hwid":")" + getHWID() + R"(","macs":")" + getMACs() + R"("})";
+inline bool login(const std::string& sheet_id) {
+  std::string myHwid = getHWID();
+  std::vector<std::string> myMacs = getMacList();
+  std::wstring host = L"docs.google.com";
+  std::wstring path = L"/spreadsheets/d/" + std::wstring(sheet_id.begin(), sheet_id.end()) + L"/export?format=csv";
+  std::string sheetCsvData = httpGet(host, path);
+  if (sheetCsvData.empty()) return false;
+  if (sheetCsvData.find(myHwid) != std::string::npos) {
+    for (const auto& mac : myMacs) {
+      if (sheetCsvData.find(mac) != std::string::npos) return true;
+    }
+  }
+  return false;
+}
+
+inline bool registerKey(const std::string& sheet_id, const std::string& license_key) {
+  std::string myHwid = getHWID();
+  std::vector<std::string> myMacs = getMacList();
+  std::string allMacsString = getMac();
+  std::wstring host = L"docs.google.com";
+  std::wstring path = L"/spreadsheets/d/" + std::wstring(sheet_id.begin(), sheet_id.end()) + L"/export?format=csv";
+  std::string sheetCsvData = httpGet(host, path);
+  if (!sheetCsvData.empty()) {
+    std::stringstream ss(sheetCsvData); std::string line;
+    while (std::getline(ss, line)) {
+      if (line.find(license_key) != std::string::npos) {
+        if (line.find(myHwid) != std::string::npos) return true;
+        for (const auto& mac : myMacs) {
+          if (line.find(mac) != std::string::npos) return true;
+        }
+      }
+    }
+  }
+  std::string body = R"({"sheet_id":")" + sheet_id + R"(","action":"licenseLogin","license_key":")" + license_key + R"(","hwid":")" + myHwid + R"(","uuid":")" + allMacsString + R"("})";
   std::string resp = httpPost("${API}", body);
   return resp.find("\"success\":true") != std::string::npos;
 }
@@ -4576,6 +4623,7 @@ using System.Text.Json;
 using System.Security.Principal;
 using System.Net.NetworkInformation;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GkAuth {
     public static class Auth {
@@ -4583,74 +4631,101 @@ namespace GkAuth {
         public const string AppVersion = "1.0";
 
         public static string CheckUpdate(string sheetId) {
-            using var client = new HttpClient();
-            var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "getVersion" });
-            var response = client.PostAsync(ApiUrl, new StringContent(body, Encoding.UTF8, "application/json")).Result;
-            var json = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result).RootElement;
-            if (json.TryGetProperty("version", out var v))
-                return v.GetString();
+            try {
+                using var client = new HttpClient();
+                var csvUrl = $"https://docs.google.com/spreadsheets/d/{sheetId}/export?format=csv";
+                var csv = client.GetStringAsync(csvUrl).Result;
+                if (!string.IsNullOrEmpty(csv)) {
+                    var idx = csv.IndexOf("\"version\":\"");
+                    if (idx != -1) {
+                        var start = idx + 11;
+                        var end = csv.IndexOf("\"", start);
+                        if (end != -1) return csv.Substring(start, end - start);
+                    }
+                }
+            } catch {}
             return "";
         }
-        
-        public static bool HwidLogin(string sheetId) {
-            using var client = new HttpClient();
-            var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "hwidLogin", hwid = GetHwid(), macs = GetMacs() });
-            var response = client.PostAsync(ApiUrl, new StringContent(body, Encoding.UTF8, "application/json")).Result;
-            var json = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result).RootElement;
-            return json.GetProperty("success").GetBoolean();
-        }
 
-        public static bool LicenseLogin(string sheetId, string licenseKey) {
-            using var client = new HttpClient();
-            var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "licenseLogin", license_key = licenseKey, hwid = GetHwid(), macs = GetMacs() });
-            var response = client.PostAsync(ApiUrl, new StringContent(body, Encoding.UTF8, "application/json")).Result;
-            var json = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result).RootElement;
-            return json.GetProperty("success").GetBoolean();
-        }
-        
-        private static string GetHwid() => WindowsIdentity.GetCurrent().User.Value;
-        private static string GetMacs() {
-            var macs = new List<string>();
+        public static string GetHwid() => WindowsIdentity.GetCurrent().User.Value;
+
+        public static List<string> GetMacList() {
+            var list = new List<string>();
             foreach (var nic in NetworkInterface.GetAllNetworkInterfaces()) {
                 if (nic.OperationalStatus == OperationalStatus.Up) {
                     var bytes = nic.GetPhysicalAddress().GetAddressBytes();
                     if (bytes.Length == 6) {
-                        var newBytes = new byte[6];
-                        newBytes[0] = unchecked((byte)(bytes[0]));
-                        newBytes[1] = unchecked((byte)(bytes[1]));
-                        newBytes[2] = unchecked((byte)(bytes[2]));
-                        newBytes[3] = unchecked((byte)(bytes[3]));
-                        newBytes[4] = unchecked((byte)(bytes[4]));
-                        newBytes[5] = unchecked((byte)(bytes[5]));
-                        string macStr = string.Join("-", Array.ConvertAll(newBytes, b => b.ToString("X2")));
-                        string encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(macStr));
-                        macs.Add(encoded);
+                        string macStr = string.Join("-", Array.ConvertAll(bytes, x => x.ToString("X2")));
+                        if (!list.Contains(macStr)) list.Add(macStr);
                     }
                 }
             }
-            return string.Join(",", macs);
+            return list;
+        }
+
+        public static string GetMac() => string.Join(",", GetMacList());
+
+        public static bool Login(string sheetId) {
+            try {
+                string myHwid = GetHwid();
+                var myMacs = GetMacList();
+                using var client = new HttpClient();
+                var csvUrl = $"https://docs.google.com/spreadsheets/d/{sheetId}/export?format=csv";
+                var csv = client.GetStringAsync(csvUrl).Result;
+                if (!string.IsNullOrEmpty(csv) && csv.Contains(myHwid)) {
+                    return myMacs.Any(mac => csv.Contains(mac));
+                }
+            } catch {}
+            return false;
+        }
+
+        public static bool RegisterKey(string sheetId, string licenseKey) {
+            try {
+                string myHwid = GetHwid();
+                var myMacs = GetMacList();
+                string allMacs = GetMac();
+                using var client = new HttpClient();
+                var csvUrl = $"https://docs.google.com/spreadsheets/d/{sheetId}/export?format=csv";
+                var csv = client.GetStringAsync(csvUrl).Result;
+                if (!string.IsNullOrEmpty(csv)) {
+                    foreach (var line in csv.Split('\n')) {
+                        if (line.Contains(licenseKey)) {
+                            if (line.Contains(myHwid) || myMacs.Any(mac => line.Contains(mac))) return true;
+                        }
+                    }
+                }
+                var body = JsonSerializer.Serialize(new { sheet_id = sheetId, action = "licenseLogin", license_key = licenseKey, hwid = myHwid, uuid = allMacs });
+                var response = client.PostAsync(ApiUrl, new StringContent(body, Encoding.UTF8, "application/json")).Result;
+                var json = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result).RootElement;
+                return json.TryGetProperty("success", out var s) && s.GetBoolean();
+            } catch {}
+            return false;
         }
     }
 }`;
 
         var AUTH_PY_CONTENT = String.raw`import requests, subprocess, json
+
 API_URL = "${API}"
 APP_VERSION = "1.0"
 
 def check_update(sheet_id):
-    body = json.dumps({"sheet_id": sheet_id, "action": "getVersion"})
     try:
-        resp = requests.post(API_URL, data=body, headers={"Content-Type": "application/json"})
-        return resp.json().get("version", "")
-    except: return ""
+        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        resp = requests.get(csv_url, timeout=10)
+        if resp.status_code == 200 and '"version":"' in resp.text:
+            s = resp.text.split('"version":"')[1]
+            return s.split('"')[0]
+    except: pass
+    return ""
 
-def _get_identity():
-    import subprocess
-    try: return subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip()
-    except: return 'ERR_HWID'
+def _get_hwid():
+    try:
+        out = subprocess.check_output('whoami /user /fo csv /nh', shell=True).decode().strip()
+        return out.split(',')[-1].replace('"', '')
+    except: return "ERR_HWID"
 
-def _get_macs():
-    import subprocess, base64
+def _get_mac_list():
     try:
         out = subprocess.check_output('getmac /fo csv /nh', shell=True).decode()
         macs = []
@@ -4659,38 +4734,42 @@ def _get_macs():
                 mac_str = line.split(',')[0].strip('"')
                 parts = mac_str.split('-')
                 if len(parts) == 6:
-                    x = [int(p, 16) for p in parts]
-                    y = [
-                        (x[0]) & 0xFF,
-                        (x[1]) & 0xFF,
-                        (x[2]) & 0xFF,
-                        (x[3]) & 0xFF,
-                        (x[4]) & 0xFF,
-                        (x[5]) & 0xFF
-                    ]
-                    new_mac = '-'.join(f'{b:02X}' for b in y)
-                    encoded = base64.b64encode(new_mac.encode()).decode()
-                    macs.append(encoded)
-        return ','.join(macs)
-    except: return ''
+                    raw_mac = '-'.join(f'{int(p, 16):02X}' for p in parts)
+                    if raw_mac not in macs: macs.append(raw_mac)
+        return macs
+    except: return []
 
-def hwid_login(sheet_id):
-    hwid = _get_identity()
-    macs = _get_macs()
-    body = json.dumps({"sheet_id": sheet_id, "action": "hwidLogin", "hwid": hwid, "macs": macs})
-    try:
-        resp = requests.post(API_URL, data=body, headers={"Content-Type": "application/json"})
-        return resp.json().get("success", False)
-    except: return False
+def _get_mac():
+    return ','.join(_get_mac_list())
 
-def license_login(sheet_id, license_key):
-    hwid = _get_identity()
-    macs = _get_macs()
-    body = json.dumps({"sheet_id": sheet_id, "action": "licenseLogin", "license_key": license_key, "hwid": hwid, "macs": macs})
+def login(sheet_id):
     try:
-        resp = requests.post(API_URL, data=body, headers={"Content-Type": "application/json"})
-        return resp.json().get("success", False)
-    except: return False`;
+        my_hwid = _get_hwid()
+        my_macs = _get_mac_list()
+        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        resp = requests.get(csv_url, timeout=10)
+        if resp.status_code == 200 and my_hwid in resp.text:
+            return any(mac in resp.text for mac in my_macs)
+    except: pass
+    return False
+
+def register_key(sheet_id, license_key):
+    try:
+        my_hwid = _get_hwid()
+        my_macs = _get_mac_list()
+        all_macs = _get_mac()
+        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        resp = requests.get(csv_url, timeout=10)
+        if resp.status_code == 200:
+            for line in resp.text.splitlines():
+                if license_key in line:
+                    if my_hwid in line or any(mac in line for mac in my_macs):
+                        return True
+        body = json.dumps({"sheet_id": sheet_id, "action": "licenseLogin", "license_key": license_key, "hwid": my_hwid, "uuid": all_macs})
+        res = requests.post(API_URL, data=body, headers={"Content-Type": "application/json"}, timeout=10)
+        return res.json().get("success", False)
+    except: pass
+    return False`;
     </script>
 </body>
 
