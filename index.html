@@ -5,7 +5,7 @@
     <script>
         var VERSION = '3.4.0';
         var SITE = { name: "Alone Auth", tag: "Auth", tagline: "Authentication for everyone.", desc: "Google Sheets powered license validation ecosystem. Your Sheet ID is your database. No backend, no server. C++, C#, Python — drop in your single-token authorization checks natively.", prefix: "ALONE-" };
-        var API = 'https://script.google.com/macros/s/AKfycbwI6YRias6pDMJ97-oR10GmrADBa3t8OhsG-UtY6Ea5r3J1RnL2g766-JquNRvwytLq9g/exec';
+        var API = 'https://script.google.com/macros/s/AKfycbxeP11Q-xe0uRFIvqpAHRHvjjGDF1Bfl3ZFAC9eWYNcRpnqKgY42jUwwmx6IVu1WoONeQ/exec';
         var DONATE = { binance: '1013131867', bkash: '+8801310844515', nogod: '+8801310844515', discord: 'hey_gk' };
         function g(n, v) { var e = document.getElementById(n); if (e) e.textContent = v }
         function initGlobals() { g('heroDesc', SITE.desc); g('dBinance', DONATE.binance); g('dBkash', DONATE.bkash); g('dNogod', DONATE.nogod); g('dDiscord', DONATE.discord); g('fDiscord', DONATE.discord); g('fSiteName', SITE.name); g('fVersion', VERSION) }
@@ -3964,6 +3964,24 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
         </div>
     </div>
 
+    <!-- OTP VERIFICATION MODAL -->
+    <div class="modal-overlay" id="otpModal" onclick="if(event.target===this)cancelOtp()">
+        <div class="modal" style="width:360px;">
+            <div class="m-icon" style="color:#f5a623; animation: pulseSpotlight 2s infinite alternate;">🔐</div>
+            <h3 style="color:#fff; font-size:22px; letter-spacing:-0.5px; margin-bottom:4px;">Security Verification</h3>
+            <p style="margin-bottom:24px; color:#aaa; font-size:13px;">Please enter the 6-digit OTP sent to Discord</p>
+
+            <label style="color:#f5a623;">ONE-TIME PASSWORD</label>
+            <input id="cuOtp" type="text" placeholder="••••••" maxlength="6" style="letter-spacing:12px; font-weight:800; text-align:center; font-size:24px; padding:16px;">
+
+            <div class="btn-row pasa-pasi-row" style="margin-top: 20px;">
+                <button class="btn btn-ghost" onclick="cancelOtp()">Cancel</button>
+                <button class="btn btn-pri" id="verifyOtpBtn" onclick="verifyOtp()" style="background:linear-gradient(135deg, rgba(245,166,35,0.15), rgba(245,166,35,0.06)); border-color:rgba(245,166,35,0.3); color:#f5a623;">Verify</button>
+            </div>
+            <div id="otpErr" style="color:#ff6b6b;font-size:11px;margin-top:12px;text-align:center; font-weight:600;"></div>
+        </div>
+    </div>
+
     <!-- INFO POPUP MODAL ADDED HERE -->
     <div class="modal-overlay" id="infoModal" onclick="if(event.target===this)closeInfoModal()">
         <div class="modal" style="width:420px;">
@@ -4023,6 +4041,8 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
 
     <script>
         var SID = localStorage.getItem('sid') || '';
+        var OTP_URL = '';
+        var NOTI_URL = '';
         initGlobals();
 
         // Ã¢â€â‚¬Ã¢â€â‚¬ Optimized Mouse Glow Tracker Ã¢â€â‚¬Ã¢â€â‚¬
@@ -4136,6 +4156,12 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
                     switchTab('dashboard');
                     refresh();
                     fetchVersion();
+                    jsonp('getWebhooks', '', function(r) {
+                        if (r.success) {
+                            OTP_URL = r.otpUrl;
+                            NOTI_URL = r.notiUrl;
+                        }
+                    });
                 } else {
                     document.getElementById('noSidMsg').style.display = 'block';
                     document.querySelector('#tab-dashboard table').style.display = 'none';
@@ -4394,7 +4420,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
 
         function showCreate() {
             // AUTO-GENERATE KEY here
-            var autoKey = SITE.prefix + generateRandomHex(4) + '-' + generateRandomHex(4);
+            var autoKey = SITE.prefix + generateRandomHex(6);
             document.getElementById('cuUser').value = autoKey;
 
             document.getElementById('cuPass').value = '';
@@ -4410,6 +4436,28 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
             this.value = this.value.toUpperCase();
         });
 
+        var pendingOtp = '';
+        var pendingCreateCb = null;
+
+        function cancelOtp() {
+            document.getElementById('otpModal').classList.remove('show');
+            document.getElementById('createBtn').disabled = false;
+        }
+
+        function verifyOtp() {
+            var givenOtp = document.getElementById('cuOtp').value.trim();
+            if (!givenOtp) return;
+            var btn = document.getElementById('verifyOtpBtn'); btn.disabled = true;
+            if (givenOtp === pendingOtp) {
+                document.getElementById('otpModal').classList.remove('show');
+                btn.disabled = false;
+                if (pendingCreateCb) pendingCreateCb();
+            } else {
+                btn.disabled = false;
+                document.getElementById('otpErr').innerHTML = 'Invalid OTP signature provided.';
+            }
+        }
+
         function createUser() {
             var u = document.getElementById('cuUser').value.trim(),
                 p = document.getElementById('cuPass').value.trim(),
@@ -4417,14 +4465,33 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
 
             var btn = document.getElementById('createBtn'); btn.disabled = true;
 
-            // Fallback if input is left empty
-            if (u === '' || u === SITE.prefix) u = SITE.prefix + generateRandomHex(4) + '-' + generateRandomHex(4);
+            if (u === '' || u === SITE.prefix) u = SITE.prefix + generateRandomHex(6);
 
-            jsonp('createUser', 'username=' + encodeURIComponent(u) + '&password=' + encodeURIComponent(p) + '&bind_type=' + b, function (r) {
-                btn.disabled = false;
-                if (r.success) { toast('License created.', 'success'); closeCreate(); refresh() }
-                else document.getElementById('createErr').innerHTML = r.error;
-            });
+            function doRequest(otp) {
+                var extra = 'username=' + encodeURIComponent(u) + '&password=' + encodeURIComponent(p) + '&bind_type=' + b;
+                if (otp) extra += '&otp=' + encodeURIComponent(otp);
+                
+                jsonp('createUser', extra, function (r) {
+                    btn.disabled = false;
+                    if (r.success) { 
+                        toast('License created.', 'success'); 
+                        closeCreate(); 
+                        refresh(); 
+                    }
+                    else if (r.require_otp) {
+                        pendingCreateCb = function() {
+                            var givenOtp = document.getElementById('cuOtp').value.trim();
+                            doRequest(givenOtp);
+                        };
+                        document.getElementById('cuOtp').value = '';
+                        document.getElementById('otpErr').innerHTML = '';
+                        document.getElementById('otpModal').classList.add('show');
+                    }
+                    else document.getElementById('createErr').innerHTML = r.error;
+                });
+            }
+            
+            doRequest(null);
         }
 
         function doDelete(k) { showConfirm('⚠', 'Delete License', 'Are you sure you want to delete "' + k + '"?', 'Delete', function () { jsonp('deleteUser', 'username=' + encodeURIComponent(k), function (r) { if (r.success) { toast('License deleted', 'success'); refresh() } else toast(r.error, 'error') }) }) }
