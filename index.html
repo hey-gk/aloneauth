@@ -3815,6 +3815,18 @@
                         </div>
                         <p style="font-size:11px;color:#666;margin-top:6px">Define the endpoint or payload link that the client should fetch. This replaces the manual 'lz=' cell method.</p>
                     </div>
+
+                    <div class="settings-section" style="margin-bottom:0; height: 100%;">
+                        <h3>Setup Link</h3>
+                        <label>Current Setup Link</label>
+                        <div class="current-sid" id="settingsSetupLinkDisplay">—</div>
+                        <label>Set New Setup Link</label>
+                        <div class="pasa-pasi-row">
+                            <input id="settingsSetupLinkInput" type="text" placeholder='e.g., "https://example.com/setup.exe"' style="margin-bottom:0;flex:1">
+                            <button class="btn btn-green" onclick="setSetupLink()" style="flex-shrink:0;">Update</button>
+                        </div>
+                        <p style="font-size:11px;color:#666;margin-top:6px">Configure a single direct setup URL.</p>
+                    </div>
                 </div>
             </div>
 
@@ -4231,6 +4243,7 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
                 if (r.success) {
                     document.getElementById('settingsVersionDisplay').textContent = r.version || 'Not Set';
                     document.getElementById('settingsLinksPrefixDisplay').textContent = r.linksPrefix || 'Not Set';
+                    document.getElementById('settingsSetupLinkDisplay').textContent = r.setupLink || 'Not Set';
                     if (!r.version || r.version.trim() === '') {
                         toast('Please configure your App Version first!', 'error');
                         setTimeout(function () {
@@ -4262,6 +4275,18 @@ token = <span class="c-fun">input</span>(<span class="c-str">"Provide License Ke
                     toast('Links Prefix updated: ' + r.linksPrefix, 'success');
                     document.getElementById('settingsLinksPrefixDisplay').textContent = r.linksPrefix;
                     document.getElementById('settingsLinksPrefixInput').value = '';
+                }
+            });
+        }
+
+        function setSetupLink() {
+            var v = document.getElementById('settingsSetupLinkInput').value.trim();
+            if (!v) { toast('Setup link cannot be empty.', 'error'); return; }
+            jsonp('setSetupLink', 'setupLink=' + encodeURIComponent(v), function (r) {
+                if (r.success) {
+                    toast('Setup Link updated successfully.', 'success');
+                    document.getElementById('settingsSetupLinkDisplay').textContent = r.setupLink || 'Not Set';
+                    document.getElementById('settingsSetupLinkInput').value = '';
                 }
             });
         }
